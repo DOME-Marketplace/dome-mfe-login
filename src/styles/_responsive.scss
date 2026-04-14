@@ -1,0 +1,29 @@
+@use "sass:map";
+
+// ==============================
+// Breakpoints
+// ==============================
+$breakpoints: (
+  sm: 414px,
+  md: 768px,
+  lg: 1200px,
+  xl: 1536px,
+);
+
+// ==============================
+// Mixins for responsive
+// ==============================
+
+// min-width: bp or greater
+@mixin up($bp) {
+  @media screen and (min-width: map.get($breakpoints, $bp)) {
+    @content;
+  }
+}
+
+// max-width: bp or less
+@mixin down($bp) {
+  @media screen and (max-width: map.get($breakpoints, $bp) - 1px) {
+    @content;
+  }
+}
