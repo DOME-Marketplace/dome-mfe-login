@@ -41,13 +41,18 @@
       </a>
     </div>
 
-    <div class="links" *ngIf="theme?.content?.links?.length">
-      <a *ngFor="let link of theme!.content.links"
-         [href]="link.url"
+    <div class="links">
+      <a href="https://dome-marketplace.eu/register"
          target="_blank"
          rel="noopener noreferrer"
          class="theme-link">
-        {{ link.label }}
+        Register as a new user
+      </a>
+      <a href="https://dome-marketplace.eu/support"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="theme-link">
+        Support Service
       </a>
     </div>
   </div>

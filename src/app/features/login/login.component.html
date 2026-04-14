@@ -1,7 +1,7 @@
-<!-- Header with logo -->
-<header class="header" *ngIf="theme?.branding?.logoUrl">
-  <img [src]="theme!.branding.logoUrl"
-       [attr.alt]="theme!.branding.name ? theme!.branding.name + ' logo' : 'Logo'"
+<!-- Header with DOME logo -->
+<header class="header">
+  <img src="assets/logos/dome-logo.png"
+       alt="DOME Marketplace logo"
        (click)="navigateHome()"
        (keydown.enter)="navigateHome()"
        tabindex="0"
@@ -12,148 +12,129 @@
 <div class="page">
   <div class="container">
 
-    <!-- Skeleton loader while theme is loading -->
-    <ng-container *ngIf="!theme">
-      <div class="card skeleton-card">
-        <div class="skeleton skeleton-title"></div>
-        <div class="skeleton skeleton-line"></div>
-        <div class="skeleton skeleton-line short"></div>
-        <div class="skeleton skeleton-qr"></div>
-        <div class="skeleton skeleton-line"></div>
+    <!-- Registration card -->
+    <div class="registration-card">
+      <h3>{{ 'login.registration' | translate }}</h3>
+      <button (click)="navigateHome()">
+        {{ 'login.onboarding' | translate }}
+      </button>
+    </div>
+
+    <!-- Success overlay -->
+    <div class="success-overlay" *ngIf="showSuccess" role="status" aria-live="polite">
+      <div class="success-card">
+        <svg class="success-checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <circle class="success-checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke-width="2" />
+          <path class="success-checkmark-check" fill="none" d="M14 27l7.8 7.8L38 17" stroke-width="3" />
+        </svg>
+        <span class="success-text">{{ 'login.verified' | translate }}</span>
       </div>
-    </ng-container>
+    </div>
 
-    <ng-container *ngIf="theme">
+    <!-- QR card -->
+    <div class="card qr-card" *ngIf="!timedOut && !errorMessage && !showSuccess">
+      <div class="qr-card-content" [class.fade-slide-in]="true">
 
-      <!-- Registration card -->
-      <div class="registration-card" *ngIf="theme.content?.onboardingUrl">
-        <h3>{{ 'login.registration' | translate }}</h3>
-        <button (click)="navigateOnboarding()">
-          {{ 'login.onboarding' | translate }}
+        <!-- Instructions (left) -->
+        <div class="instructions">
+          <h1 class="instructions-title">{{ 'login.instructions.title' | translate }}</h1>
+          <ol>
+            <li>
+              {{ 'login.instructions.step1.before' | translate }}
+              <a [href]="walletRedirectUrl || '#'"
+                 target="_blank"
+                 rel="noopener noreferrer">{{ 'login.instructions.step1.link' | translate }}</a>
+              {{ 'login.instructions.step1.after' | translate }}
+            </li>
+            <li>{{ 'login.instructions.step2' | translate }}</li>
+            <li>{{ 'login.instructions.step3' | translate }}</li>
+          </ol>
+        </div>
+
+        <!-- QR container (right) -->
+        <div class="qr-container">
+          <div class="qr-frame" *ngIf="!sameDevice">
+            <qrcode
+              [qrdata]="authRequest"
+              [width]="250"
+              [errorCorrectionLevel]="'M'"
+              [margin]="2">
+            </qrcode>
+          </div>
+          <div class="qr-actions" *ngIf="!sameDevice">
+            <span class="qr-title">{{ 'login.qr.hint' | translate }}</span>
+            <button class="copy-button"
+                    [class.copy-success]="copied"
+                    [attr.aria-label]="'login.qr.copy' | translate"
+                    (click)="copyAuthRequest()">
+              <span class="material-icons" aria-hidden="true">{{ copied ? 'check' : 'content_copy' }}</span>
+              <span>{{ (copied ? 'login.qr.copied' : 'login.qr.copy') | translate }}</span>
+            </button>
+          </div>
+
+          <!-- Countdown timer -->
+          <div class="countdown-container" *ngIf="waitingForVerification && !sameDevice"
+               role="timer" [attr.aria-label]="remainingSeconds + 's'">
+            <svg class="countdown-svg" viewBox="0 0 52 52" aria-hidden="true">
+              <circle class="countdown-track" cx="26" cy="26" r="22" fill="none" stroke-width="3" />
+              <circle class="countdown-progress" cx="26" cy="26" r="22" fill="none" stroke-width="3"
+                      [attr.stroke-dasharray]="2 * 3.1416 * 22"
+                      [attr.stroke-dashoffset]="2 * 3.1416 * 22 * (1 - countdownPercentage / 100)"
+                      transform="rotate(-90 26 26)" />
+            </svg>
+            <span class="countdown-text" aria-hidden="true">{{ remainingSeconds }}</span>
+          </div>
+
+          <div class="same-device-section fade-slide-in" *ngIf="sameDevice">
+            <div class="same-device-title">
+              <h3>{{ 'login.sameDevice.title' | translate }}</h3>
+            </div>
+            <button class="wallet-button"
+                    *ngIf="walletRedirectUrl"
+                    [attr.aria-label]="'login.sameDevice.wallet' | translate"
+                    (click)="openWallet()">
+              <span class="material-icons" aria-hidden="true">account_balance_wallet</span>
+              {{ 'login.sameDevice.wallet' | translate }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Same-device / QR toggle -->
+      <div class="toggle-section" *ngIf="walletRedirectUrl">
+        <button *ngIf="!sameDevice" class="toggle-button" (click)="toggleSameDevice()">
+          {{ 'login.sameDevice.switch' | translate }}
+        </button>
+        <button *ngIf="sameDevice" class="toggle-button" (click)="toggleSameDevice()">
+          {{ 'login.qr.switch' | translate }}
         </button>
       </div>
+    </div>
 
-      <!-- Success overlay -->
-      <div class="success-overlay" *ngIf="showSuccess" role="status" aria-live="polite">
-        <div class="success-card">
-          <svg class="success-checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <circle class="success-checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke-width="2" />
-            <path class="success-checkmark-check" fill="none" d="M14 27l7.8 7.8L38 17" stroke-width="3" />
-          </svg>
-          <span class="success-text">{{ 'login.verified' | translate }}</span>
-        </div>
+    <!-- Timeout message -->
+    <div class="card timeout-card" *ngIf="timedOut" role="alert">
+      <p>{{ 'login.timeout' | translate }}</p>
+    </div>
+
+    <!-- Error message -->
+    <div class="card error-card" *ngIf="errorMessage" role="alert">
+      <p>{{ errorMessage | translate }}</p>
+    </div>
+
+    <!-- Support card -->
+    <div class="support-card">
+      <span>{{ 'login.support.question' | translate }}</span>
+      <div class="help-container">
+        <span class="material-icons">build</span>
+        <span class="help">
+          {{ 'login.support.before' | translate }}
+          <a href="https://dome-marketplace.eu/support"
+             target="_blank"
+             rel="noopener noreferrer">{{ 'login.support.link' | translate }}</a>
+        </span>
       </div>
+    </div>
 
-      <!-- QR card -->
-      <div class="card qr-card" *ngIf="!timedOut && !errorMessage && !showSuccess">
-        <div class="qr-card-content" [class.fade-slide-in]="true">
-
-          <!-- Instructions (left) -->
-          <div class="instructions">
-            <h1 class="instructions-title">{{ 'login.instructions.title' | translate }}</h1>
-            <ol>
-              <li>
-                <span *ngIf="theme.content?.walletUrl; else noWalletLink">
-                  {{ 'login.instructions.step1.before' | translate }}
-                  <a [href]="theme.content.walletUrl"
-                     target="_blank"
-                     rel="noopener noreferrer">{{ 'login.instructions.step1.link' | translate }}</a>
-                  {{ 'login.instructions.step1.after' | translate }}
-                </span>
-                <ng-template #noWalletLink>
-                  {{ 'login.instructions.step1.noLink' | translate }}
-                </ng-template>
-              </li>
-              <li>{{ 'login.instructions.step2' | translate }}</li>
-              <li>{{ 'login.instructions.step3' | translate }}</li>
-            </ol>
-          </div>
-
-          <!-- QR container (right) -->
-          <div class="qr-container">
-            <div class="qr-frame" *ngIf="!sameDevice">
-              <qrcode
-                [qrdata]="authRequest"
-                [width]="250"
-                [errorCorrectionLevel]="'M'"
-                [margin]="2">
-              </qrcode>
-            </div>
-            <div class="qr-actions" *ngIf="!sameDevice">
-              <span class="qr-title">{{ 'login.qr.hint' | translate }}</span>
-              <button class="copy-button"
-                      [class.copy-success]="copied"
-                      [attr.aria-label]="'login.qr.copy' | translate"
-                      (click)="copyAuthRequest()">
-                <span class="material-icons" aria-hidden="true">{{ copied ? 'check' : 'content_copy' }}</span>
-                <span>{{ (copied ? 'login.qr.copied' : 'login.qr.copy') | translate }}</span>
-              </button>
-            </div>
-
-            <!-- Countdown timer -->
-            <div class="countdown-container" *ngIf="waitingForVerification && !sameDevice"
-                 role="timer" [attr.aria-label]="remainingSeconds + 's'">
-              <svg class="countdown-svg" viewBox="0 0 52 52" aria-hidden="true">
-                <circle class="countdown-track" cx="26" cy="26" r="22" fill="none" stroke-width="3" />
-                <circle class="countdown-progress" cx="26" cy="26" r="22" fill="none" stroke-width="3"
-                        [attr.stroke-dasharray]="2 * 3.1416 * 22"
-                        [attr.stroke-dashoffset]="2 * 3.1416 * 22 * (1 - countdownPercentage / 100)"
-                        transform="rotate(-90 26 26)" />
-              </svg>
-              <span class="countdown-text" aria-hidden="true">{{ remainingSeconds }}</span>
-            </div>
-
-            <div class="same-device-section fade-slide-in" *ngIf="sameDevice">
-              <div class="same-device-title">
-                <h3>{{ 'login.sameDevice.title' | translate }}</h3>
-              </div>
-              <button class="wallet-button"
-                      *ngIf="walletRedirectUrl"
-                      [attr.aria-label]="'login.sameDevice.wallet' | translate"
-                      (click)="openWallet()">
-                <span class="material-icons" aria-hidden="true">account_balance_wallet</span>
-                {{ 'login.sameDevice.wallet' | translate }}
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Same-device / QR toggle -->
-        <div class="toggle-section" *ngIf="theme.content?.walletUrl">
-          <button *ngIf="!sameDevice" class="toggle-button" (click)="toggleSameDevice()">
-            {{ 'login.sameDevice.switch' | translate }}
-          </button>
-          <button *ngIf="sameDevice" class="toggle-button" (click)="toggleSameDevice()">
-            {{ 'login.qr.switch' | translate }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Timeout message -->
-      <div class="card timeout-card" *ngIf="timedOut" role="alert">
-        <p>{{ 'login.timeout' | translate }}</p>
-      </div>
-
-      <!-- Error message -->
-      <div class="card error-card" *ngIf="errorMessage" role="alert">
-        <p>{{ errorMessage | translate }}</p>
-      </div>
-
-      <!-- Support card -->
-      <div class="support-card" *ngIf="theme.content?.supportUrl">
-        <span>{{ 'login.support.question' | translate }}</span>
-        <div class="help-container">
-          <span class="material-icons">build</span>
-          <span class="help">
-            {{ 'login.support.before' | translate }}
-            <a [href]="theme.content.supportUrl"
-               target="_blank"
-               rel="noopener noreferrer">{{ 'login.support.link' | translate }}</a>
-          </span>
-        </div>
-      </div>
-
-    </ng-container>
   </div>
 </div>

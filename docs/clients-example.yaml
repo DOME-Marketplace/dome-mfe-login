@@ -1,0 +1,23 @@
+# Example OIDC client registration for DOME with custom login page
+# Add this client to the Verifier's clients.yaml
+
+clients:
+  - clientId: "dome-marketplace"
+    url: "https://dome-marketplace.eu"
+    tenant: "dome"
+    loginPageUri: "https://login.dome-marketplace.eu"
+    clientAuthenticationMethods:
+      - "none"
+    authorizationGrantTypes:
+      - "authorization_code"
+    redirectUris:
+      - "https://dome-marketplace.eu/callback"
+    postLogoutRedirectUris:
+      - "https://dome-marketplace.eu"
+    scopes:
+      - "openid"
+      - "profile"
+      - "email"
+      - "learcredential"
+    requireAuthorizationConsent: false
+    requireProofKey: true

@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { ThemeService } from '../../core/services/theme.service';
-import { Theme } from '../../core/models/theme.model';
 
 @Component({
   selector: 'app-error',
@@ -17,12 +15,10 @@ export class ErrorComponent implements OnInit {
   errorMessage = '';
   clientUrl = '';
   originalRequestURL = '';
-  theme: Theme | null = null;
   copied = false;
 
   constructor(
-    private route: ActivatedRoute,
-    private themeService: ThemeService
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -31,7 +27,6 @@ export class ErrorComponent implements OnInit {
     this.errorMessage = params.get('errorMessage') ?? '';
     this.clientUrl = params.get('clientUrl') ?? '';
     this.originalRequestURL = params.get('originalRequestURL') ?? '';
-    this.theme = this.themeService.snapshot;
   }
 
   copyDetails(): void {

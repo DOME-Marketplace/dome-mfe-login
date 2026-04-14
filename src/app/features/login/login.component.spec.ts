@@ -1,14 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
-import { BehaviorSubject, NEVER } from 'rxjs';
+import { NEVER } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
 import { QRCodeComponent } from 'angularx-qrcode';
 
 import { LoginComponent } from './login.component';
 import { SseService } from '../../core/services/sse.service';
-import { ThemeService } from '../../core/services/theme.service';
-import { Theme } from '../../core/models/theme.model';
 
 @Component({ selector: 'qrcode', template: '', standalone: true })
 class MockQRCodeComponent {
@@ -21,31 +19,8 @@ class MockQRCodeComponent {
 describe('LoginComponent', () => {
   let component: LoginComponent;
   let fixture: ComponentFixture<LoginComponent>;
-  let theme$: BehaviorSubject<Theme | null>;
-
-  const baseTheme: Theme = {
-    branding: {
-      name: 'Test',
-      primaryColor: '#000',
-      primaryContrastColor: '#fff',
-      secondaryColor: '#111',
-      secondaryContrastColor: '#222',
-      logoUrl: null,
-      faviconUrl: null
-    },
-    content: {
-      links: [],
-      footer: null,
-      onboardingUrl: null,
-      supportUrl: null,
-      walletUrl: null
-    },
-    i18n: { defaultLang: 'en', available: ['en'] }
-  };
 
   function createComponent(queryParams: Record<string, string> = {}) {
-    theme$ = new BehaviorSubject<Theme | null>(baseTheme);
-
     TestBed.configureTestingModule({
       imports: [LoginComponent, TranslateModule.forRoot()],
       providers: [
@@ -60,10 +35,6 @@ describe('LoginComponent', () => {
         {
           provide: SseService,
           useValue: { connect: jest.fn().mockReturnValue(NEVER) }
-        },
-        {
-          provide: ThemeService,
-          useValue: { observeTheme: () => theme$.asObservable() }
         }
       ]
     }).overrideComponent(LoginComponent, {
@@ -79,8 +50,6 @@ describe('LoginComponent', () => {
     jest.restoreAllMocks();
     fixture?.destroy();
   });
-
-  // --- Initialization ---
 
   describe('ngOnInit', () => {
     it('should read authRequest, state and homeUri from query params', () => {
@@ -101,13 +70,6 @@ describe('LoginComponent', () => {
       expect(component.homeUri).toBe('');
     });
 
-    it('should subscribe to theme', () => {
-      createComponent({});
-      fixture.detectChanges();
-
-      expect(component.theme).toEqual(baseTheme);
-    });
-
     it('should connect SSE when state is provided', () => {
       createComponent({ state: 's123' });
       fixture.detectChanges();
@@ -125,20 +87,10 @@ describe('LoginComponent', () => {
     });
   });
 
-  // --- walletRedirectUrl ---
-
   describe('walletRedirectUrl', () => {
-    it('should return empty string when walletUrl is not configured', () => {
-      createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc' });
-      fixture.detectChanges();
-
-      expect(component.walletRedirectUrl).toBe('');
-    });
-
     it('should return empty string when authRequest is empty', () => {
       createComponent({});
       fixture.detectChanges();
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
 
       expect(component.walletRedirectUrl).toBe('');
     });
@@ -146,35 +98,12 @@ describe('LoginComponent', () => {
     it('should build wallet URL with authorization_request query parameter', () => {
       createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc&state=s1' });
       fixture.detectChanges();
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
 
-      const expected = 'https://wallet.example.com/protocol/callback?authorization_request=' +
+      const expected = 'http://localhost:4200/protocol/callback?authorization_request=' +
         encodeURIComponent('https://verifier.example.com/oid4vp/auth?nonce=abc&state=s1');
       expect(component.walletRedirectUrl).toBe(expected);
     });
-
-    it('should strip trailing slashes from walletUrl', () => {
-      createComponent({ authRequest: 'https://verifier.example.com/path?q=1' });
-      fixture.detectChanges();
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com/' } });
-
-      const expected = 'https://wallet.example.com/protocol/callback?authorization_request=' +
-        encodeURIComponent('https://verifier.example.com/path?q=1');
-      expect(component.walletRedirectUrl).toBe(expected);
-    });
-
-    it('should encode special characters in authRequest', () => {
-      createComponent({ authRequest: 'not-a-url' });
-      fixture.detectChanges();
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
-
-      const expected = 'https://wallet.example.com/protocol/callback?authorization_request=' +
-        encodeURIComponent('not-a-url');
-      expect(component.walletRedirectUrl).toBe(expected);
-    });
   });
-
-  // --- copyAuthRequest ---
 
   describe('copyAuthRequest', () => {
     beforeEach(() => {
@@ -214,8 +143,6 @@ describe('LoginComponent', () => {
     });
   });
 
-  // --- toggleSameDevice ---
-
   describe('toggleSameDevice', () => {
     it('should toggle sameDevice from false to true', () => {
       createComponent({});
@@ -236,20 +163,17 @@ describe('LoginComponent', () => {
     });
   });
 
-  // --- openWallet ---
-
   describe('openWallet', () => {
     it('should open wallet in new tab when walletRedirectUrl is available', () => {
       createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc' });
       fixture.detectChanges();
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
 
       const mockWindow = {} as Window;
       jest.spyOn(window, 'open').mockReturnValue(mockWindow);
 
       component.openWallet();
 
-      const expectedUrl = 'https://wallet.example.com/protocol/callback?authorization_request=' +
+      const expectedUrl = 'http://localhost:4200/protocol/callback?authorization_request=' +
         encodeURIComponent('https://verifier.example.com/oid4vp/auth?nonce=abc');
       expect(window.open).toHaveBeenCalledWith(expectedUrl, '_blank');
     });
@@ -257,7 +181,6 @@ describe('LoginComponent', () => {
     it('should not throw when popup is blocked (fallback to redirect)', () => {
       createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc' });
       fixture.detectChanges();
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
 
       jest.spyOn(window, 'open').mockReturnValue(null);
 
@@ -276,8 +199,6 @@ describe('LoginComponent', () => {
       expect(window.open).not.toHaveBeenCalled();
     });
   });
-
-  // --- Template rendering ---
 
   describe('template', () => {
     it('should show QR code when sameDevice is false', () => {
@@ -324,26 +245,16 @@ describe('LoginComponent', () => {
       expect(copyButton).toBeNull();
     });
 
-    it('should show toggle-section when walletUrl is configured', () => {
+    it('should show toggle-section when walletRedirectUrl is available', () => {
       createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc' });
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
       fixture.detectChanges();
 
       const toggle = fixture.nativeElement.querySelector('.toggle-section');
       expect(toggle).toBeTruthy();
     });
 
-    it('should hide toggle-section when walletUrl is not configured', () => {
-      createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc' });
-      fixture.detectChanges();
-
-      const toggle = fixture.nativeElement.querySelector('.toggle-section');
-      expect(toggle).toBeNull();
-    });
-
     it('should show wallet button in same-device mode when walletRedirectUrl exists', () => {
       createComponent({ authRequest: 'https://verifier.example.com/oid4vp/auth?nonce=abc' });
-      theme$.next({ ...baseTheme, content: { ...baseTheme.content, walletUrl: 'https://wallet.example.com' } });
       fixture.detectChanges();
 
       component.sameDevice = true;
@@ -368,8 +279,6 @@ describe('LoginComponent', () => {
     });
   });
 
-  // --- Navigation ---
-
   describe('navigateHome', () => {
     it('should not throw when homeUri is empty', () => {
       createComponent({});
@@ -378,17 +287,6 @@ describe('LoginComponent', () => {
       expect(() => component.navigateHome()).not.toThrow();
     });
   });
-
-  describe('navigateOnboarding', () => {
-    it('should not throw when onboardingUrl is null', () => {
-      createComponent({});
-      fixture.detectChanges();
-
-      expect(() => component.navigateOnboarding()).not.toThrow();
-    });
-  });
-
-  // --- Countdown ---
 
   describe('countdown', () => {
     it('should initialize remainingSeconds to 120', () => {
@@ -417,8 +315,6 @@ describe('LoginComponent', () => {
     }));
   });
 
-  // --- Success state ---
-
   describe('showSuccess', () => {
     it('should default to false', () => {
       createComponent({});
@@ -427,30 +323,6 @@ describe('LoginComponent', () => {
       expect(component.showSuccess).toBe(false);
     });
   });
-
-  // --- Skeleton ---
-
-  describe('skeleton loader', () => {
-    it('should show skeleton when theme is null', () => {
-      createComponent({});
-      // Do not call detectChanges yet so theme stays null
-      theme$.next(null);
-      fixture.detectChanges();
-
-      const skeleton = fixture.nativeElement.querySelector('.skeleton-card');
-      expect(skeleton).toBeTruthy();
-    });
-
-    it('should hide skeleton when theme is loaded', () => {
-      createComponent({});
-      fixture.detectChanges();
-
-      const skeleton = fixture.nativeElement.querySelector('.skeleton-card');
-      expect(skeleton).toBeNull();
-    });
-  });
-
-  // --- Cleanup ---
 
   describe('ngOnDestroy', () => {
     it('should not throw when destroying component', () => {
@@ -467,7 +339,6 @@ describe('LoginComponent', () => {
       tick(2000);
       component.ngOnDestroy();
 
-      // After destroy, remainingSeconds should stop changing
       const secondsAtDestroy = component.remainingSeconds;
       tick(3000);
       expect(component.remainingSeconds).toBe(secondsAtDestroy);

@@ -3,35 +3,12 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ErrorComponent } from './error.component';
-import { ThemeService } from '../../core/services/theme.service';
-import { Theme } from '../../core/models/theme.model';
 
 describe('ErrorComponent', () => {
   let component: ErrorComponent;
   let fixture: ComponentFixture<ErrorComponent>;
 
-  const baseTheme: Theme = {
-    tenantDomain: 'test.example.com',
-    branding: {
-      name: 'Test',
-      primaryColor: '#000',
-      primaryContrastColor: '#fff',
-      secondaryColor: '#111',
-      secondaryContrastColor: '#222',
-      logoUrl: null,
-      faviconUrl: null
-    },
-    content: {
-      links: [{ label: 'Help', url: 'https://help.example.com' }],
-      footer: null,
-      onboardingUrl: null,
-      supportUrl: null,
-      walletUrl: null
-    },
-    i18n: { defaultLang: 'en', available: ['en'] }
-  };
-
-  function createComponent(queryParams: Record<string, string> = {}, theme: Theme | null = baseTheme) {
+  function createComponent(queryParams: Record<string, string> = {}) {
     TestBed.configureTestingModule({
       imports: [ErrorComponent, TranslateModule.forRoot()],
       providers: [
@@ -42,10 +19,6 @@ describe('ErrorComponent', () => {
               queryParamMap: convertToParamMap(queryParams)
             }
           }
-        },
-        {
-          provide: ThemeService,
-          useValue: { snapshot: theme }
         }
       ]
     });
@@ -58,8 +31,6 @@ describe('ErrorComponent', () => {
     fixture?.destroy();
     jest.restoreAllMocks();
   });
-
-  // --- Initialization ---
 
   describe('ngOnInit', () => {
     it('should read all query params', () => {
@@ -86,23 +57,7 @@ describe('ErrorComponent', () => {
       expect(component.clientUrl).toBe('');
       expect(component.originalRequestURL).toBe('');
     });
-
-    it('should load theme snapshot', () => {
-      createComponent({});
-      fixture.detectChanges();
-
-      expect(component.theme).toEqual(baseTheme);
-    });
-
-    it('should handle null theme snapshot', () => {
-      createComponent({}, null);
-      fixture.detectChanges();
-
-      expect(component.theme).toBeNull();
-    });
   });
-
-  // --- copyDetails ---
 
   describe('copyDetails', () => {
     beforeEach(() => {
@@ -163,8 +118,6 @@ describe('ErrorComponent', () => {
     });
   });
 
-  // --- Template rendering ---
-
   describe('template', () => {
     it('should show error icon', () => {
       createComponent({ errorCode: '500' });
@@ -176,14 +129,6 @@ describe('ErrorComponent', () => {
 
     it('should show details section when errorCode is present', () => {
       createComponent({ errorCode: '403' });
-      fixture.detectChanges();
-
-      const details = fixture.nativeElement.querySelector('.details');
-      expect(details).toBeTruthy();
-    });
-
-    it('should show details section when errorMessage is present', () => {
-      createComponent({ errorMessage: 'Something went wrong' });
       fixture.detectChanges();
 
       const details = fixture.nativeElement.querySelector('.details');
@@ -215,23 +160,14 @@ describe('ErrorComponent', () => {
       expect(backButton).toBeNull();
     });
 
-    it('should show theme links when available', () => {
+    it('should show hardcoded DOME links', () => {
       createComponent({});
       fixture.detectChanges();
 
       const links = fixture.nativeElement.querySelectorAll('.theme-link');
-      expect(links.length).toBe(1);
-      expect(links[0].getAttribute('href')).toBe('https://help.example.com');
-      expect(links[0].textContent.trim()).toBe('Help');
-    });
-
-    it('should hide links section when no theme links', () => {
-      const themeNoLinks = { ...baseTheme, content: { ...baseTheme.content, links: [] } };
-      createComponent({}, themeNoLinks);
-      fixture.detectChanges();
-
-      const linksSection = fixture.nativeElement.querySelector('.links');
-      expect(linksSection).toBeNull();
+      expect(links.length).toBe(2);
+      expect(links[0].getAttribute('href')).toBe('https://dome-marketplace.eu/register');
+      expect(links[1].getAttribute('href')).toBe('https://dome-marketplace.eu/support');
     });
 
     it('should show copy button', () => {

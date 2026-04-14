@@ -5,8 +5,7 @@ import { QRCodeComponent } from 'angularx-qrcode';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription, timer } from 'rxjs';
 import { SseService } from '../../core/services/sse.service';
-import { ThemeService } from '../../core/services/theme.service';
-import { Theme } from '../../core/models/theme.model';
+import { environment } from '../../../environments/environment';
 
 const LOGIN_TIMEOUT_MS = 120_000;
 const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
@@ -22,7 +21,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   authRequest = '';
   state = '';
   homeUri = '';
-  theme: Theme | null = null;
   timedOut = false;
   errorMessage = '';
   sameDevice = false;
@@ -34,21 +32,17 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   private sseSub?: Subscription;
   private timerSub?: Subscription;
-  private themeSub?: Subscription;
   private countdownInterval?: ReturnType<typeof setInterval>;
 
   constructor(
     private route: ActivatedRoute,
-    private sseService: SseService,
-    private themeService: ThemeService
+    private sseService: SseService
   ) {}
 
   ngOnInit(): void {
     this.authRequest = this.route.snapshot.queryParamMap.get('authRequest') ?? '';
     this.state = this.route.snapshot.queryParamMap.get('state') ?? '';
     this.homeUri = this.route.snapshot.queryParamMap.get('homeUri') ?? '';
-
-    this.themeSub = this.themeService.observeTheme().subscribe(t => this.theme = t);
 
     if (this.state) {
       this.waitingForVerification = true;
@@ -84,7 +78,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   get walletRedirectUrl(): string {
-    const walletUrl = this.theme?.content?.walletUrl;
+    const walletUrl = environment.walletUrl;
     if (!this.authRequest || !walletUrl) return '';
     const base = walletUrl.replace(/\/+$/, '');
     return `${base}/protocol/callback?authorization_request=${encodeURIComponent(this.authRequest)}`;
@@ -105,12 +99,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   navigateHome(): void {
     if (this.homeUri) {
       window.location.href = this.homeUri;
-    }
-  }
-
-  navigateOnboarding(): void {
-    if (this.theme?.content?.onboardingUrl) {
-      window.location.href = this.theme.content.onboardingUrl;
     }
   }
 
@@ -144,7 +132,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.sseSub?.unsubscribe();
     this.timerSub?.unsubscribe();
-    this.themeSub?.unsubscribe();
     this.clearCountdown();
   }
 }
