@@ -5,7 +5,6 @@
   "login.instructions.step1.before": "You must log in to an EUDI Wallet or to our",
   "login.instructions.step1.link": "DOME Digital Wallet",
   "login.instructions.step1.after": "using your smartphone.",
-  "login.instructions.step1.noLink": "You must log in to an EUDI Wallet using your smartphone.",
   "login.instructions.step2": "Scan the QR code.",
   "login.instructions.step3": "Select the LEAR credential obtained after the registration process.",
   "login.qr.hint": "Scan the QR with an EUDI Wallet or the DOME Digital Wallet to log in",
@@ -31,5 +30,8 @@
   "error.clientUrl": "Client URL",
   "error.copy": "Copy details",
   "error.copied": "Copied!",
-  "error.back": "Go back"
+  "error.back": "Go back",
+  "error.links.register": "Register as a new user",
+  "error.links.support": "Support Service",
+  "error.links.wallet": "Download DOME Digital Wallet"
 }

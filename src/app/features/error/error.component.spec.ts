@@ -160,14 +160,15 @@ describe('ErrorComponent', () => {
       expect(backButton).toBeNull();
     });
 
-    it('should show hardcoded DOME links', () => {
+    it('should show translated DOME links', () => {
       createComponent({});
       fixture.detectChanges();
 
       const links = fixture.nativeElement.querySelectorAll('.theme-link');
-      expect(links.length).toBe(2);
+      expect(links.length).toBe(3);
       expect(links[0].getAttribute('href')).toBe('https://dome-marketplace.eu/register');
       expect(links[1].getAttribute('href')).toBe('https://dome-marketplace.eu/support');
+      expect(links[2].getAttribute('href')).toBe('https://wallet.dome-marketplace.org');
     });
 
     it('should show copy button', () => {
