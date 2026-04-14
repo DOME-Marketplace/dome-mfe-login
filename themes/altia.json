@@ -1,0 +1,22 @@
+{
+  "branding": {
+    "name": "Altia - Verifier Portal",
+    "primaryColor": "#001E8C",
+    "primaryContrastColor": "#ffffff",
+    "secondaryColor": "#0B1438",
+    "secondaryContrastColor": "#00FF94",
+    "logoUrl": null,
+    "faviconUrl": null
+  },
+  "content": {
+    "links": [],
+    "footer": null,
+    "onboardingUrl": null,
+    "supportUrl": null,
+    "walletUrl": null
+  },
+  "i18n": {
+    "defaultLang": "es",
+    "available": ["en", "es", "ca"]
+  }
+}

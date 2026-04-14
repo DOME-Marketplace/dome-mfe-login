@@ -1,0 +1,54 @@
+<div class="error-container" role="main">
+  <div class="error-card" role="alert">
+    <div class="error-icon" aria-hidden="true">&#9888;</div>
+
+    <h1>{{ 'error.title' | translate }}</h1>
+    <p class="description">{{ 'error.message' | translate }}</p>
+
+    <div class="details" *ngIf="errorCode || errorMessage">
+      <h2>{{ 'error.details' | translate }}</h2>
+
+      <div class="detail-row" *ngIf="errorCode">
+        <span class="label">{{ 'error.code' | translate }}:</span>
+        <span class="value">{{ errorCode }}</span>
+      </div>
+
+      <div class="detail-row" *ngIf="errorMessage">
+        <span class="label">{{ 'error.description' | translate }}:</span>
+        <span class="value">{{ errorMessage }}</span>
+      </div>
+
+      <div class="detail-row" *ngIf="originalRequestURL">
+        <span class="label">{{ 'error.requestUrl' | translate }}:</span>
+        <span class="value url">{{ originalRequestURL }}</span>
+      </div>
+
+      <div class="detail-row" *ngIf="clientUrl">
+        <span class="label">{{ 'error.clientUrl' | translate }}:</span>
+        <span class="value url">{{ clientUrl }}</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="copy-button"
+              [attr.aria-label]="'error.copy' | translate"
+              (click)="copyDetails()">
+        {{ (copied ? 'error.copied' : 'error.copy') | translate }}
+      </button>
+
+      <a *ngIf="clientUrl" [href]="clientUrl" class="back-button">
+        {{ 'error.back' | translate }}
+      </a>
+    </div>
+
+    <div class="links" *ngIf="theme?.content?.links?.length">
+      <a *ngFor="let link of theme!.content.links"
+         [href]="link.url"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="theme-link">
+        {{ link.label }}
+      </a>
+    </div>
+  </div>
+</div>

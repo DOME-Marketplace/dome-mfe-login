@@ -1,0 +1,22 @@
+{
+  "branding": {
+    "name": "Verifier Portal",
+    "primaryColor": "#001E8C",
+    "primaryContrastColor": "#ffffff",
+    "secondaryColor": "#14274A",
+    "secondaryContrastColor": "#00ADD3",
+    "logoUrl": null,
+    "faviconUrl": null
+  },
+  "content": {
+    "links": [],
+    "footer": null,
+    "onboardingUrl": null,
+    "supportUrl": null,
+    "walletUrl": null
+  },
+  "i18n": {
+    "defaultLang": "en",
+    "available": ["en", "es", "ca"]
+  }
+}
