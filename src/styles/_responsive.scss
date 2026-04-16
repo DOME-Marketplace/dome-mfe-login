@@ -6,9 +6,12 @@
 $breakpoints: (
   sm: 414px,
   md: 768px,
-  lg: 1200px,
-  xl: 1536px,
+  lg: 1280px,
+  xl: 1440px,
 );
+
+$max-width: 1440px;
+$content-width: 738px;
 
 // ==============================
 // Mixins for responsive
@@ -25,5 +28,22 @@ $breakpoints: (
 @mixin down($bp) {
   @media screen and (max-width: map.get($breakpoints, $bp) - 1px) {
     @content;
+  }
+}
+
+// ==============================
+//  Responsive visibility utilities
+// ==============================
+.-desktop-only {
+  display: none;
+  @include up(md) {
+    display: block !important;
+  }
+}
+
+.-mobile-only {
+  display: block;
+  @include up(md) {
+    display: none !important;
   }
 }

@@ -1,27 +1,281 @@
 <!-- ////////// HEADER START ////////// -->
 <header id="header" class="header">
-  <div class="header__inner">
-    <span class="header__logo">
-      <img src="../../../assets/logos/dome-logo.svg" alt="" />
-      <!-- 
-      <img [src]="theme!.branding.logoUrl"
-        [attr.alt]="theme!.branding.name ? theme!.branding.name + ' logo' : 'Logo'"
-        (click)="navigateHome()"
-        (keydown.enter)="navigateHome()"
-        tabindex="0"
-        role="button"
-        class="header-logo"
-      /> 
-      -->
-    </span>
+  <div class="header-inner">
+    <a
+      class="header-logo"
+      [href]="homeUri || '/'"
+      aria-label="DOME Marketplace"
+    >
+      <img src="assets/logos/dome-logo.svg" alt="" aria-hidden="true" />
+    </a>
+    <nav class="header-nav" aria-label="Main navigation">
+      <ul class="header-nav-list" role="list">
+        <li><a class="header-nav-link" href="#">For Customers</a></li>
+        <li><a class="header-nav-link" href="#">For Providers</a></li>
+        <li class="header-nav-dropdown-wrap">
+          <button
+            class="header-nav-link header-nav-dropdown-trigger"
+            type="button"
+            id="dropdown-marketplace"
+            [attr.aria-expanded]="marketplaceDropdownOpen"
+            aria-controls="dropdown-marketplace-menu"
+            (click)="toggleMarketplaceDropdown()"
+          >
+            Marketplace
+            <span class="header-nav-dropdown-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul
+            class="header-nav-dropdown-menu"
+            id="dropdown-marketplace-menu"
+            [class.is-open]="marketplaceDropdownOpen"
+            role="list"
+            [attr.aria-hidden]="!marketplaceDropdownOpen"
+            aria-labelledby="dropdown-marketplace"
+          >
+            <li>
+              <button class="header-nav-dropdown-item" type="button">
+                Browse services
+              </button>
+            </li>
+            <li>
+              <button class="header-nav-dropdown-item" type="button">
+                Providers catalog
+              </button>
+            </li>
+          </ul>
+        </li>
+        <li><a class="header-nav-link" href="#">Resources</a></li>
+        <li><a class="header-nav-link" href="#">Blog</a></li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a class="header-btn header-btn--outline" href="#">Contact us</a>
+      <a class="header-btn header-btn--filled" href="#">Login</a>
+    </div>
+    <button
+      class="header-hamburger"
+      type="button"
+      [attr.aria-expanded]="mobileMenuOpen"
+      aria-controls="mobile-menu"
+      [attr.aria-label]="(mobileMenuOpen ? 'Close menu' : 'Open menu')"
+      (click)="toggleMobileMenu()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">
+        {{ mobileMenuOpen ? "close" : "menu" }}
+      </span>
+    </button>
+  </div>
+  <div
+    class="header-mobile-menu"
+    id="mobile-menu"
+    [class.is-open]="mobileMenuOpen"
+    [attr.aria-hidden]="!mobileMenuOpen"
+  >
+    <ul class="header-mobile-nav-list" role="list">
+      <li><a class="header-mobile-nav-link" href="#">For Customers</a></li>
+      <li><a class="header-mobile-nav-link" href="#">For Providers</a></li>
+      <li><a class="header-mobile-nav-link" href="#">Browse services</a></li>
+      <li><a class="header-mobile-nav-link" href="#">Providers catalog</a></li>
+      <li><a class="header-mobile-nav-link" href="#">Resources</a></li>
+      <li><a class="header-mobile-nav-link" href="#">Blog</a></li>
+    </ul>
+    <div class="header-mobile-actions">
+      <a class="header-btn header-btn--outline" href="#">Contact us</a>
+      <a class="header-btn header-btn--filled" href="#">Login</a>
+    </div>
   </div>
 </header>
 <!-- ////////// HEADER END ////////// -->
 
 <!-- ////////// MAIN START ////////// -->
-<main>
-
+<main class="main">
+  <section class="section sectionHome">
+    <div class="section-inner">
+      @if (!timedOut && !errorMessage) {
+        <!-- ----- section head------ -->
+        <div class="sectionHome-head">
+          <h1 class="sectionHome-title">{{ "login.title" | translate }}</h1>
+          <p class="sectionHome-description">
+            {{ "login.description" | translate }}
+          </p>
+        </div>
+        <div class="sectionHome-body">
+          <!-- ----- instructions card ------ -->
+          <div class="instructions">
+            <div class="instructions-qr-access">
+              <div class="instructions-qr-frame">
+                <div
+                  role="img"
+                  [attr.aria-label]="'login.qr.frame.description' | translate"
+                >
+                  <qrcode
+                    [qrdata]="authRequest"
+                    [width]="180"
+                    [errorCorrectionLevel]="'M'"
+                    [margin]="0"
+                  >
+                  </qrcode>
+                </div>
+                <span
+                  class="instructions-qr-frame-description"
+                  aria-hidden="true"
+                  >{{ "login.qr.frame.description" | translate }}</span
+                >
+              </div>
+              <p class="instructions-access-description -desktop-only">
+                {{ "login.qr.description.desktop" | translate }}
+              </p>
+              <p class="instructions-access-description -mobile-only">
+                {{ "login.qr.description.mobile" | translate }}
+              </p>
+              <span class="sr-only" aria-live="polite" aria-atomic="true">{{
+                copied ? ("login.qr.copied" | translate) : ""
+              }}</span>
+              <button
+                class="instructions-access-button"
+                [class.copy-success]="copied"
+                [attr.aria-label]="
+                  (copied ? 'login.qr.copied' : 'login.qr.copy') | translate
+                "
+                (click)="copyAuthRequest()"
+              >
+                <span
+                  class="material-symbols-outlined icon--filled"
+                  aria-hidden="true"
+                  >{{ copied ? "check" : "content_copy" }}</span
+                >
+                {{ (copied ? "login.qr.copied" : "login.qr.copy") | translate }}
+              </button>
+            </div>
+            <ol class="instructions-list" role="list">
+              <li class="instructions-item">
+                <span
+                  class="material-symbols-outlined instructions-item-icon"
+                  aria-hidden="true"
+                  >account_balance_wallet</span
+                >
+                <div class="instructions-item-body">
+                  <span class="instructions-item-title">
+                    <span aria-hidden="true">1. </span
+                    >{{ "login.steps.1.title" | translate }}
+                  </span>
+                  <p class="instructions-item-description">
+                    {{ "login.steps.1.description" | translate }}
+                  </p>
+                </div>
+              </li>
+              <li class="instructions-item">
+                <span
+                  class="material-symbols-outlined instructions-item-icon"
+                  aria-hidden="true"
+                  >qr_code_scanner</span
+                >
+                <div class="instructions-item-body">
+                  <span class="instructions-item-title">
+                    <span aria-hidden="true">2. </span
+                    >{{ "login.steps.2.title" | translate }}
+                  </span>
+                  <p class="instructions-item-description">
+                    {{ "login.steps.2.description" | translate }}
+                  </p>
+                </div>
+              </li>
+              <li class="instructions-item">
+                <span
+                  class="material-symbols-outlined instructions-item-icon"
+                  aria-hidden="true"
+                  >person</span
+                >
+                <div class="instructions-item-body">
+                  <span class="instructions-item-title">
+                    <span aria-hidden="true">3. </span
+                    >{{ "login.steps.3.title" | translate }}
+                  </span>
+                  <p class="instructions-item-description">
+                    {{ "login.steps.3.description" | translate }}
+                  </p>
+                </div>
+              </li>
+            </ol>
+          </div>
+          <!-- ----- wallet link section------ -->
+          <a
+            [href]="walletRedirectUrl || '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="buttonLinkPrimary"
+          >
+            {{ "login.wallet.link" | translate }}
+            <span class="material-symbols-outlined" aria-hidden="true">
+              arrow_outward
+            </span>
+          </a>
+          <p class="buttonLinkPrimary-lead-text">
+            {{ "login.wallet.description" | translate }}
+          </p>
+          <!-- ----- support link section------ -->
+          <div class="support-box">
+            <span class="material-symbols-outlined" aria-hidden="true">
+              mail
+            </span>
+            <span class="support-box-text">{{
+              "login.support.question" | translate
+            }}</span>
+            <a
+              href="https://dome-marketplace.eu/support"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="support-box-link"
+              >{{ "login.support.link" | translate }}</a
+            >
+          </div>
+          <!-- ----- section foot------ -->
+          <div class="sectionHome-foot">
+            <p class="sectionHome-foot-text">
+              {{ "login.register.question" | translate }}
+            </p>
+            <ul class="sectionHome-foot-link-list">
+              <li>
+                <a
+                  href="https://onboard.sbx.evidenceledger.eu/register-customer"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="textlink"
+                  >{{ "login.register.customer" | translate }}</a
+                >
+              </li>
+              <li>
+                <a
+                  href="https://onboard.sbx.evidenceledger.eu/register-provider"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="textlink"
+                  >{{ "login.register.provider" | translate }}</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      } @else if (timedOut && !errorMessage) {
+        <div
+          class="status-message status-message-timeout"
+          role="alert"
+          tabindex="-1"
+          #timeoutMsg
+        >
+          {{ "login.timeout" | translate }}
+        </div>
+      } @else {
+        <div
+          class="status-message status-message-error"
+          role="alert"
+          tabindex="-1"
+          #errorMsg
+        >
+          {{ errorMessage | translate }}
+        </div>
+      }
+    </div>
+  </section>
 </main>
-
-<footer></footer>
-
+<!-- ////////// MAIN END ////////// -->
