@@ -1,0 +1,183 @@
+<header id="header" class="header">
+  <div class="header-inner">
+    <a
+      class="header-logo"
+      [href]="homeUri() || '#'"
+      aria-label="DOME Marketplace"
+    >
+      <img src="assets/logos/dome-logo.svg" alt="" aria-hidden="true" />
+    </a>
+    <nav class="header-nav" aria-label="Main navigation">
+      <ul class="header-nav-list" role="list">
+        <li>
+          <a
+            class="header-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/customers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            For Customers
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/providers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            For Providers
+          </a>
+        </li>
+        <li class="header-nav-dropdown-wrap" #dropdownWrap>
+          <button
+            class="header-nav-link header-nav-dropdown-trigger"
+            type="button"
+            id="dropdown-marketplace"
+            [attr.aria-expanded]="marketplaceDropdownOpen"
+            aria-controls="dropdown-marketplace-menu"
+            (click)="toggleMarketplaceDropdown()"
+          >
+            Marketplace
+            <span class="header-nav-dropdown-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul
+            class="header-nav-dropdown-menu"
+            id="dropdown-marketplace-menu"
+            [class.is-open]="marketplaceDropdownOpen"
+            role="list"
+            [attr.aria-hidden]="!marketplaceDropdownOpen"
+            aria-labelledby="dropdown-marketplace"
+          >
+            <li>
+              <a
+                class="header-nav-dropdown-item"
+                [href]="homeUri() ? homeUri() + '/search' : '#'"
+              >
+                Browse services
+              </a>
+            </li>
+            <li>
+              <a
+                class="header-nav-dropdown-item"
+                [href]="homeUri() ? homeUri() + '/catalogues' : '#'"
+              >
+                Providers catalog
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a
+            class="header-nav-link"
+            href="https://knowledgebase.dome-marketplace-prd.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Resources
+          </a>
+        </li>
+        <li>
+          <a class="header-nav-link" [href]="homeUri() ? homeUri() + '/blog' : '#'">
+            Blog
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a
+        class="header-btn header-btn--outline"
+        [href]="homeUri() ? homeUri() + '/contact-us' : '#'"
+      >
+        Contact us
+      </a>
+      <a class="header-btn header-btn--filled" href="#">Login</a>
+    </div>
+    <button
+      class="header-hamburger"
+      type="button"
+      [attr.aria-expanded]="mobileMenuOpen"
+      aria-controls="mobile-menu"
+      [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+      (click)="toggleMobileMenu()"
+    >
+      <span class="material-symbols-outlined" aria-hidden="true">
+        {{ mobileMenuOpen ? "close" : "menu" }}
+      </span>
+    </button>
+  </div>
+  <div
+    class="header-mobile-menu"
+    id="mobile-menu"
+    [class.is-open]="mobileMenuOpen"
+    [attr.aria-hidden]="!mobileMenuOpen"
+  >
+    <div class="header-mobile-menu-inner">
+      <ul class="header-mobile-nav-list" role="list">
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/customers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            For Customers
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/providers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            For Providers
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/search' : '#'"
+          >
+            Browse services
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/catalogues' : '#'"
+          >
+            Providers catalog
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            href="https://knowledgebase.dome-marketplace-prd.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Resources
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/blog' : '#'"
+          >
+            Blog
+          </a>
+        </li>
+      </ul>
+      <div class="header-mobile-actions">
+        <a
+          class="header-btn header-btn--outline"
+          [href]="homeUri() ? homeUri() + '/contact-us' : '#'"
+        >
+          Contact us
+        </a>
+        <a class="header-btn header-btn--filled" href="#">Login</a>
+      </div>
+    </div>
+  </div>
+</header>

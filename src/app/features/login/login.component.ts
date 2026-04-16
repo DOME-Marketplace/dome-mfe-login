@@ -2,8 +2,8 @@ import {
   Component,
   OnInit,
   OnDestroy,
-  ViewChild,
   ElementRef,
+  viewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -13,6 +13,7 @@ import { Subscription, timer } from 'rxjs';
 import { SseService } from '../../core/services/sse.service';
 import { environment } from '../../../environments/environment';
 import { ExternalLinkDirective } from '../../core/directives/external-link.directive';
+import { HeaderComponent } from '../../shared/components/header/header.component';
 
 const LOGIN_TIMEOUT_MS = 120_000;
 const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
@@ -25,14 +26,17 @@ const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
     QRCodeComponent,
     TranslateModule,
     ExternalLinkDirective,
+    HeaderComponent,
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent implements OnInit, OnDestroy {
-  @ViewChild('timeoutMsg') timeoutMsg?: ElementRef;
-  @ViewChild('errorMsg') errorMsg?: ElementRef;
+  // View children
+  timeoutMsg = viewChild<ElementRef>('timeoutMsg');
+  errorMsg = viewChild<ElementRef>('errorMsg');
 
+  // Public state
   authRequest = '';
   state = '';
   homeUri = '';
@@ -42,11 +46,10 @@ export class LoginComponent implements OnInit, OnDestroy {
   copied = false;
   waitingForVerification = false;
   showSuccess = false;
-  mobileMenuOpen = false;
-  marketplaceDropdownOpen = false;
   remainingSeconds: number = LOGIN_TIMEOUT_SECONDS;
   countdownPercentage: number = 100;
 
+  // Private state
   private sseSub?: Subscription;
   private timerSub?: Subscription;
   private countdownInterval?: ReturnType<typeof setInterval>;
@@ -66,7 +69,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     // }
     // this.homeUri = this.route.snapshot.queryParamMap.get('homeUri') ?? '';
     // if (!this.homeUri && !environment.production) {
-    //   this.homeUri = 'https://dome-marketplace.eu'; // TODO: remove (dev only)
+    //   this.homeUri = 'https://dome-marketplace.org/'; // TODO: remove (dev only)
     // }
 
     // this.authRequest =
@@ -96,7 +99,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.waitingForVerification = false;
           this.errorMessage = 'login.error';
           this.clearCountdown();
-          setTimeout(() => this.errorMsg?.nativeElement.focus());
+          setTimeout(() => this.errorMsg()?.nativeElement.focus());
         },
       });
 
@@ -107,10 +110,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.timedOut = true;
         this.clearCountdown();
         this.sseSub?.unsubscribe();
-        setTimeout(() => this.timeoutMsg?.nativeElement.focus());
+        setTimeout(() => this.timeoutMsg()?.nativeElement.focus());
         if (this.homeUri) {
           window.location.href = this.homeUri;
-          // console.log('OK');
         }
       });
     }
@@ -121,14 +123,6 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (!this.authRequest || !walletUrl) return '';
     const base = walletUrl.replace(/\/+$/, '');
     return `${base}/protocol/callback?authorization_request=${encodeURIComponent(this.authRequest)}`;
-  }
-
-  toggleMobileMenu(): void {
-    this.mobileMenuOpen = !this.mobileMenuOpen;
-  }
-
-  toggleMarketplaceDropdown(): void {
-    this.marketplaceDropdownOpen = !this.marketplaceDropdownOpen;
   }
 
   copyAuthRequest(): void {
@@ -144,25 +138,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       });
   }
 
-  // toggleSameDevice(): void {
-  //   this.sameDevice = !this.sameDevice;
-  // }
-
-  // navigateHome(): void {
-  //   if (this.homeUri) {
-  //     window.location.href = this.homeUri;
-  //   }
-  // }
-  //
-
-  // openWallet(): void {
-  //   if (!this.walletRedirectUrl) return;
-  //   const opened = window.open(this.walletRedirectUrl, '_blank');
-  //   if (!opened) {
-  //     window.location.href = this.walletRedirectUrl;
-  //   }
-  // }
-
   private startCountdown(): void {
     this.remainingSeconds = LOGIN_TIMEOUT_SECONDS;
     this.countdownPercentage = 100;
@@ -170,7 +145,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.remainingSeconds = Math.max(0, this.remainingSeconds - 1);
       this.countdownPercentage =
         (this.remainingSeconds / LOGIN_TIMEOUT_SECONDS) * 100;
-      // console.log(`[countdown] ${this.remainingSeconds}s remaining`); // TODO: remove (dev only)
       if (this.remainingSeconds <= 0) {
         this.clearCountdown();
       }
