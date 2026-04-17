@@ -453,3 +453,67 @@
     border-radius: 2px;
   }
 }
+
+/* ==============================
+ * Success overlay
+ * ============================== */
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(var(--primary-contrast-color-rgb), 0.2);
+  z-index: 200;
+  animation: fadeIn 0.3s ease;
+}
+
+.success-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--surface-card);
+  border-radius: 24px;
+  padding: 40px 48px;
+}
+
+.success-checkmark {
+  width: 72px;
+  height: 72px;
+}
+
+.success-checkmark-circle {
+  stroke: var(--status-success);
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: strokeDraw 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.success-checkmark-check {
+  stroke: var(--status-success);
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: strokeDraw 0.4s 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.success-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes strokeDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

@@ -34,7 +34,7 @@
             class="header-nav-link header-nav-dropdown-trigger"
             type="button"
             id="dropdown-marketplace"
-            [attr.aria-expanded]="marketplaceDropdownOpen"
+            [attr.aria-expanded]="marketplaceDropdownOpen()"
             aria-controls="dropdown-marketplace-menu"
             (click)="toggleMarketplaceDropdown()"
           >
@@ -44,9 +44,9 @@
           <ul
             class="header-nav-dropdown-menu"
             id="dropdown-marketplace-menu"
-            [class.is-open]="marketplaceDropdownOpen"
+            [class.is-open]="marketplaceDropdownOpen()"
             role="list"
-            [attr.aria-hidden]="!marketplaceDropdownOpen"
+            [attr.aria-hidden]="!marketplaceDropdownOpen()"
             aria-labelledby="dropdown-marketplace"
           >
             <li>
@@ -96,12 +96,12 @@
     <button
       class="header-hamburger"
       type="button"
-      [attr.aria-expanded]="mobileMenuOpen"
+      [attr.aria-expanded]="mobileMenuOpen()"
       aria-controls="mobile-menu"
-      [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'"
+      [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'"
       (click)="toggleMobileMenu()"
     >
-      @if (mobileMenuOpen) {
+      @if (mobileMenuOpen()) {
         <ng-icon name="heroXMark" size="28" aria-hidden="true"></ng-icon>
       } @else {
         <ng-icon name="heroBars3" size="28" aria-hidden="true"></ng-icon>
@@ -111,8 +111,8 @@
   <div
     class="header-mobile-menu"
     id="mobile-menu"
-    [class.is-open]="mobileMenuOpen"
-    [attr.aria-hidden]="!mobileMenuOpen"
+    [class.is-open]="mobileMenuOpen()"
+    [attr.aria-hidden]="!mobileMenuOpen()"
   >
     <div class="header-mobile-menu-inner">
       <ul class="header-mobile-nav-list" role="list">

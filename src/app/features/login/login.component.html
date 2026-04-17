@@ -1,12 +1,26 @@
 <!-- ////////// HEADER START ////////// -->
-<app-header [homeUri]="homeUri"></app-header>
+<app-header [homeUri]="homeUri()"></app-header>
 <!-- ////////// HEADER START ////////// -->
+
+<!-- ////////// SUCCESS OVERLAY START ////////// -->
+@if (showSuccess()) {
+  <div class="success-overlay" role="status" aria-live="polite">
+    <div class="success-card">
+      <svg class="success-checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle class="success-checkmark-circle" cx="26" cy="26" r="24" fill="none" stroke-width="2" />
+        <path class="success-checkmark-check" fill="none" d="M14 27l7.8 7.8L38 17" stroke-width="3" />
+      </svg>
+      <span class="success-text">{{ "login.verified" | translate }}</span>
+    </div>
+  </div>
+}
+<!-- ////////// SUCCESS OVERLAY END ////////// -->
 
 <!-- ////////// MAIN START ////////// -->
 <main class="main">
   <section class="section sectionHome">
     <div class="section-inner">
-      @if (!timedOut && !errorMessage) {
+      @if (!timedOut() && !errorMessage()) {
         <!-- ----- section head------ -->
         <div class="sectionHome-head">
           <h1 class="sectionHome-title">{{ "login.title" | translate }}</h1>
@@ -24,7 +38,7 @@
                   [attr.aria-label]="'login.qr.frame.description' | translate"
                 >
                   <qrcode
-                    [qrdata]="authRequest"
+                    [qrdata]="authRequest()"
                     [width]="180"
                     [errorCorrectionLevel]="'M'"
                     [margin]="0"
@@ -34,8 +48,9 @@
                 <span
                   class="instructions-qr-frame-description"
                   aria-hidden="true"
-                  >{{ "login.qr.frame.description" | translate }}</span
                 >
+                  {{ "login.qr.frame.description" | translate }}
+                </span>
               </div>
               <p class="instructions-access-description -desktop-only">
                 {{ "login.qr.description.desktop" | translate }}
@@ -43,18 +58,18 @@
               <p class="instructions-access-description -mobile-only">
                 {{ "login.qr.description.mobile" | translate }}
               </p>
-              <span class="sr-only" aria-live="polite" aria-atomic="true">{{
-                copied ? ("login.qr.copied" | translate) : ""
-              }}</span>
+              <span class="sr-only" aria-live="polite" aria-atomic="true">
+                {{ copied() ? ("login.qr.copied" | translate) : "" }}
+              </span>
               <button
                 class="instructions-access-button"
-                [class.copy-success]="copied"
+                [class.copy-success]="copied()"
                 [attr.aria-label]="
-                  (copied ? 'login.qr.copied' : 'login.qr.copy') | translate
+                  (copied() ? 'login.qr.copied' : 'login.qr.copy') | translate
                 "
                 (click)="copyAuthRequest()"
               >
-                @if (copied) {
+                @if (copied()) {
                   <ng-icon
                     name="heroCheck"
                     size="14"
@@ -67,7 +82,9 @@
                     aria-hidden="true"
                   ></ng-icon>
                 }
-                {{ (copied ? "login.qr.copied" : "login.qr.copy") | translate }}
+                {{
+                  (copied() ? "login.qr.copied" : "login.qr.copy") | translate
+                }}
               </button>
             </div>
             <ol class="instructions-list" role="list">
@@ -77,8 +94,8 @@
                 </span>
                 <div class="instructions-item-body">
                   <span class="instructions-item-title">
-                    <span aria-hidden="true">1. </span
-                    >{{ "login.steps.1.title" | translate }}
+                    <span aria-hidden="true">1. </span>
+                    {{ "login.steps.1.title" | translate }}
                   </span>
                   <p class="instructions-item-description">
                     {{ "login.steps.1.description" | translate }}
@@ -91,8 +108,8 @@
                 </span>
                 <div class="instructions-item-body">
                   <span class="instructions-item-title">
-                    <span aria-hidden="true">2. </span
-                    >{{ "login.steps.2.title" | translate }}
+                    <span aria-hidden="true">2. </span>
+                    {{ "login.steps.2.title" | translate }}
                   </span>
                   <p class="instructions-item-description">
                     {{ "login.steps.2.description" | translate }}
@@ -105,8 +122,8 @@
                 </span>
                 <div class="instructions-item-body">
                   <span class="instructions-item-title">
-                    <span aria-hidden="true">3. </span
-                    >{{ "login.steps.3.title" | translate }}
+                    <span aria-hidden="true">3. </span>
+                    {{ "login.steps.3.title" | translate }}
                   </span>
                   <p class="instructions-item-description">
                     {{ "login.steps.3.description" | translate }}
@@ -117,7 +134,7 @@
           </div>
           <!-- ----- wallet link section------ -->
           <a
-            [href]="walletRedirectUrl || '#'"
+            [href]="walletRedirectUrl() || '#'"
             target="_blank"
             rel="noopener noreferrer"
             class="buttonLinkPrimary"
@@ -137,16 +154,17 @@
                 aria-hidden="true"
               ></ng-icon>
             </span>
-            <span class="support-box-text">{{
-              "login.support.question" | translate
-            }}</span>
+            <span class="support-box-text">
+              {{ "login.support.question" | translate }}
+            </span>
             <a
               href="https://dome-marketplace.eu/support"
               target="_blank"
               rel="noopener noreferrer"
               class="support-box-link"
-              >{{ "login.support.link" | translate }}</a
             >
+              {{ "login.support.link" | translate }}
+            </a>
           </div>
           <!-- ----- section foot------ -->
           <div class="sectionHome-foot">
@@ -160,8 +178,9 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   class="textlink"
-                  >{{ "login.register.customer" | translate }}</a
                 >
+                  {{ "login.register.customer" | translate }}
+                </a>
               </li>
               <li>
                 <a
@@ -169,13 +188,14 @@
                   target="_blank"
                   rel="noopener noreferrer"
                   class="textlink"
-                  >{{ "login.register.provider" | translate }}</a
                 >
+                  {{ "login.register.provider" | translate }}
+                </a>
               </li>
             </ul>
           </div>
         </div>
-      } @else if (timedOut && !errorMessage) {
+      } @else if (timedOut() && !errorMessage()) {
         <div
           class="status-message status-message-timeout"
           role="alert"
@@ -191,7 +211,7 @@
           tabindex="-1"
           #errorMsg
         >
-          {{ errorMessage | translate }}
+          {{ errorMessage() | translate }}
         </div>
       }
     </div>

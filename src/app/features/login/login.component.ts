@@ -1,10 +1,14 @@
 import {
   Component,
   OnInit,
-  OnDestroy,
   ElementRef,
   viewChild,
+  inject,
+  signal,
+  computed,
+  DestroyRef,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { QRCodeComponent } from 'angularx-qrcode';
@@ -15,7 +19,15 @@ import { environment } from '../../../environments/environment';
 import { ExternalLinkDirective } from '../../core/directives/external-link.directive';
 import { HeaderComponent } from '../../shared/components/header/header.component';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
-import { heroWallet, heroQrCode, heroUser, heroCheck, heroArrowUpRight, heroEnvelope } from '@ng-icons/heroicons/outline';
+import {
+  heroWallet,
+  heroQrCode,
+  heroUser,
+  heroCheck,
+  heroCheckCircle,
+  heroArrowUpRight,
+  heroEnvelope,
+} from '@ng-icons/heroicons/outline';
 import { heroSquare2StackSolid } from '@ng-icons/heroicons/solid';
 
 const LOGIN_TIMEOUT_MS = 120_000;
@@ -32,77 +44,77 @@ const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
     HeaderComponent,
     NgIconComponent,
   ],
-  providers: [provideIcons({ heroWallet, heroQrCode, heroUser, heroCheck, heroArrowUpRight, heroEnvelope, heroSquare2StackSolid })],
+  providers: [
+    provideIcons({
+      heroWallet,
+      heroQrCode,
+      heroUser,
+      heroCheck,
+      heroCheckCircle,
+      heroArrowUpRight,
+      heroEnvelope,
+      heroSquare2StackSolid,
+    }),
+  ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   // View children
-  timeoutMsg = viewChild<ElementRef>('timeoutMsg');
-  errorMsg = viewChild<ElementRef>('errorMsg');
+  readonly timeoutMsg = viewChild<ElementRef>('timeoutMsg');
+  readonly errorMsg = viewChild<ElementRef>('errorMsg');
 
-  // Public state
-  authRequest = '';
-  state = '';
-  homeUri = '';
-  timedOut = false;
-  errorMessage = '';
-  sameDevice = false;
-  copied = false;
-  waitingForVerification = false;
-  showSuccess = false;
-  remainingSeconds: number = LOGIN_TIMEOUT_SECONDS;
-  countdownPercentage: number = 100;
+  // service injection
+  private readonly route = inject(ActivatedRoute);
+  private readonly sseService = inject(SseService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // Signals
+  protected readonly authRequest = signal('');
+  protected readonly state = signal('');
+  protected readonly homeUri = signal('');
+  protected readonly timedOut = signal(false);
+  protected readonly errorMessage = signal('');
+  protected readonly copied = signal(false);
+  protected readonly waitingForVerification = signal(false);
+  protected readonly showSuccess = signal(false);
+  protected readonly remainingSeconds = signal(LOGIN_TIMEOUT_SECONDS);
+  protected readonly countdownPercentage = signal(100);
 
   // Private state
   private sseSub?: Subscription;
-  private timerSub?: Subscription;
   private countdownInterval?: ReturnType<typeof setInterval>;
 
-  constructor(
-    private route: ActivatedRoute,
-    private sseService: SseService,
-  ) {}
+  // Computed signals
+  readonly walletRedirectUrl = computed(() => {
+    const walletUrl = environment.walletUrl;
+    if (!this.authRequest() || !walletUrl) return '';
+    const base = walletUrl.replace(/\/+$/, '');
+    return `${base}/protocol/callback?authorization_request=${encodeURIComponent(this.authRequest())}`;
+  });
 
   ngOnInit(): void {
-    this.authRequest =
-      this.route.snapshot.queryParamMap.get('authRequest') ?? '';
-    this.state = this.route.snapshot.queryParamMap.get('state') ?? '';
+    this.authRequest.set(
+      this.route.snapshot.queryParamMap.get('authRequest') ?? '',
+    );
+    this.state.set(this.route.snapshot.queryParamMap.get('state') ?? '');
+    this.homeUri.set(this.route.snapshot.queryParamMap.get('homeUri') ?? '');
 
-    // if (!this.state && !environment.production) {
-    //   this.state = 'dev-mock-state'; // TODO: remove (dev only)
-    // }
-    // this.homeUri = this.route.snapshot.queryParamMap.get('homeUri') ?? '';
-    // if (!this.homeUri && !environment.production) {
-    //   this.homeUri = 'https://dome-marketplace.org/'; // TODO: remove (dev only)
-    // }
+    if (this.state()) {
+      this.waitingForVerification.set(true);
 
-    // this.authRequest =
-    //   this.route.snapshot.queryParamMap.get('authRequest') ?? '';
-    // if (!this.authRequest && !environment.production) {
-    //   this.authRequest =
-    //     'openid4vp://authorize?response_type=vp_token&client_id=dev-mock&nonce=abc123';
-    // }
-    // this.state = this.route.snapshot.queryParamMap.get('state') ?? '';
-    // if (!this.state && !environment.production) {
-    //   this.state = 'dev-mock-state';
-    // }
-
-    if (this.state) {
-      this.waitingForVerification = true;
-
-      this.sseSub = this.sseService.connect(this.state).subscribe({
+      this.sseSub = this.sseService.connect(this.state()).subscribe({
         next: (redirectUrl) => {
-          this.waitingForVerification = false;
-          this.showSuccess = true;
+          this.waitingForVerification.set(false);
+          this.showSuccess.set(true);
           this.clearCountdown();
           setTimeout(() => {
             window.location.href = redirectUrl;
           }, 800);
         },
         error: () => {
-          this.waitingForVerification = false;
-          this.errorMessage = 'login.error';
+          this.waitingForVerification.set(false);
+          this.errorMessage.set('login.error');
           this.clearCountdown();
           setTimeout(() => this.errorMsg()?.nativeElement.focus());
         },
@@ -110,33 +122,35 @@ export class LoginComponent implements OnInit, OnDestroy {
 
       this.startCountdown();
 
-      this.timerSub = timer(LOGIN_TIMEOUT_MS).subscribe(() => {
-        this.waitingForVerification = false;
-        this.timedOut = true;
-        this.clearCountdown();
-        this.sseSub?.unsubscribe();
-        setTimeout(() => this.timeoutMsg()?.nativeElement.focus());
-        if (this.homeUri) {
-          window.location.href = this.homeUri;
-        }
-      });
+      timer(LOGIN_TIMEOUT_MS)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.waitingForVerification.set(false);
+          this.timedOut.set(true);
+          this.clearCountdown();
+          this.sseSub?.unsubscribe();
+          setTimeout(() => this.timeoutMsg()?.nativeElement.focus());
+          if (this.homeUri()) {
+            setTimeout(() => {
+              window.location.href = this.homeUri();
+            }, 800);
+          }
+        });
     }
-  }
 
-  get walletRedirectUrl(): string {
-    const walletUrl = environment.walletUrl;
-    if (!this.authRequest || !walletUrl) return '';
-    const base = walletUrl.replace(/\/+$/, '');
-    return `${base}/protocol/callback?authorization_request=${encodeURIComponent(this.authRequest)}`;
+    this.destroyRef.onDestroy(() => {
+      this.sseSub?.unsubscribe();
+      this.clearCountdown();
+    });
   }
 
   copyAuthRequest(): void {
-    if (!this.authRequest) return;
+    if (!this.authRequest()) return;
     navigator.clipboard
-      .writeText(this.authRequest)
+      .writeText(this.authRequest())
       .then(() => {
-        this.copied = true;
-        setTimeout(() => (this.copied = false), 2000);
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 2000);
       })
       .catch((err) => {
         console.error('Failed to copy', err);
@@ -144,13 +158,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   private startCountdown(): void {
-    this.remainingSeconds = LOGIN_TIMEOUT_SECONDS;
-    this.countdownPercentage = 100;
+    this.remainingSeconds.set(LOGIN_TIMEOUT_SECONDS);
+    this.countdownPercentage.set(100);
     this.countdownInterval = setInterval(() => {
-      this.remainingSeconds = Math.max(0, this.remainingSeconds - 1);
-      this.countdownPercentage =
-        (this.remainingSeconds / LOGIN_TIMEOUT_SECONDS) * 100;
-      if (this.remainingSeconds <= 0) {
+      this.remainingSeconds.update((s) => Math.max(0, s - 1));
+      this.countdownPercentage.set(
+        (this.remainingSeconds() / LOGIN_TIMEOUT_SECONDS) * 100,
+      );
+      if (this.remainingSeconds() <= 0) {
         this.clearCountdown();
       }
     }, 1000);
@@ -161,11 +176,5 @@ export class LoginComponent implements OnInit, OnDestroy {
       clearInterval(this.countdownInterval);
       this.countdownInterval = undefined;
     }
-  }
-
-  ngOnDestroy(): void {
-    this.sseSub?.unsubscribe();
-    this.timerSub?.unsubscribe();
-    this.clearCountdown();
   }
 }
