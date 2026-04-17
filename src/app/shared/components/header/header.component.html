@@ -101,9 +101,11 @@
       [attr.aria-label]="mobileMenuOpen ? 'Close menu' : 'Open menu'"
       (click)="toggleMobileMenu()"
     >
-      <span class="material-symbols-outlined" aria-hidden="true">
-        {{ mobileMenuOpen ? "close" : "menu" }}
-      </span>
+      @if (mobileMenuOpen) {
+        <ng-icon name="heroXMark" size="28" aria-hidden="true"></ng-icon>
+      } @else {
+        <ng-icon name="heroBars3" size="28" aria-hidden="true"></ng-icon>
+      }
     </button>
   </div>
   <div

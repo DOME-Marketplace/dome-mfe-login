@@ -239,10 +239,6 @@
       outline: 2px solid var(--primary-contrast-color);
       outline-offset: 4px;
     }
-
-    .material-symbols-outlined {
-      font-size: 28px;
-    }
   }
 
   /* ----- mobile menu panel ----- */
@@ -256,6 +252,10 @@
 
     &.is-open {
       display: block;
+
+      .header-mobile-menu-inner {
+        animation: mobileMenuIn 0.25s ease forwards;
+      }
     }
   }
 
@@ -263,6 +263,15 @@
     background: rgba(var(--primary-contrast-color-rgb), 0.1);
     backdrop-filter: blur(8px);
     border-radius: 14px;
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  @keyframes mobileMenuIn {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .header-mobile-nav-list {

@@ -54,21 +54,27 @@
                 "
                 (click)="copyAuthRequest()"
               >
-                <span
-                  class="material-symbols-outlined icon--filled"
-                  aria-hidden="true"
-                  >{{ copied ? "check" : "content_copy" }}</span
-                >
+                @if (copied) {
+                  <ng-icon
+                    name="heroCheck"
+                    size="14"
+                    aria-hidden="true"
+                  ></ng-icon>
+                } @else {
+                  <ng-icon
+                    name="heroSquare2StackSolid"
+                    size="14"
+                    aria-hidden="true"
+                  ></ng-icon>
+                }
                 {{ (copied ? "login.qr.copied" : "login.qr.copy") | translate }}
               </button>
             </div>
             <ol class="instructions-list" role="list">
               <li class="instructions-item">
-                <span
-                  class="material-symbols-outlined instructions-item-icon"
-                  aria-hidden="true"
-                  >account_balance_wallet</span
-                >
+                <span class="instructions-item-icon" aria-hidden="true">
+                  <ng-icon name="heroWallet" size="20"></ng-icon>
+                </span>
                 <div class="instructions-item-body">
                   <span class="instructions-item-title">
                     <span aria-hidden="true">1. </span
@@ -80,11 +86,9 @@
                 </div>
               </li>
               <li class="instructions-item">
-                <span
-                  class="material-symbols-outlined instructions-item-icon"
-                  aria-hidden="true"
-                  >qr_code_scanner</span
-                >
+                <span class="instructions-item-icon" aria-hidden="true">
+                  <ng-icon name="heroQrCode" size="20"></ng-icon>
+                </span>
                 <div class="instructions-item-body">
                   <span class="instructions-item-title">
                     <span aria-hidden="true">2. </span
@@ -96,11 +100,9 @@
                 </div>
               </li>
               <li class="instructions-item">
-                <span
-                  class="material-symbols-outlined instructions-item-icon"
-                  aria-hidden="true"
-                  >person</span
-                >
+                <span class="instructions-item-icon" aria-hidden="true">
+                  <ng-icon name="heroUser" size="20"></ng-icon>
+                </span>
                 <div class="instructions-item-body">
                   <span class="instructions-item-title">
                     <span aria-hidden="true">3. </span
@@ -121,17 +123,19 @@
             class="buttonLinkPrimary"
           >
             {{ "login.wallet.link" | translate }}
-            <span class="material-symbols-outlined" aria-hidden="true">
-              arrow_outward
-            </span>
+            <ng-icon name="heroArrowUpRight" aria-hidden="true"></ng-icon>
           </a>
           <p class="buttonLinkPrimary-lead-text">
             {{ "login.wallet.description" | translate }}
           </p>
           <!-- ----- support link section------ -->
           <div class="support-box">
-            <span class="material-symbols-outlined" aria-hidden="true">
-              mail
+            <span class="support-box-icon">
+              <ng-icon
+                name="heroEnvelope"
+                size="20"
+                aria-hidden="true"
+              ></ng-icon>
             </span>
             <span class="support-box-text">{{
               "login.support.question" | translate

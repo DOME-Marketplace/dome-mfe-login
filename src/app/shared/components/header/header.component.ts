@@ -6,12 +6,15 @@ import {
   viewChild,
   inject,
 } from '@angular/core';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroBars3, heroXMark } from '@ng-icons/heroicons/outline';
 import { ExternalLinkDirective } from '../../../core/directives/external-link.directive';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ExternalLinkDirective],
+  imports: [ExternalLinkDirective, NgIconComponent],
+  providers: [provideIcons({ heroBars3, heroXMark })],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
 })

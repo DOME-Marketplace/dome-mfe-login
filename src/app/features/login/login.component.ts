@@ -14,6 +14,9 @@ import { SseService } from '../../core/services/sse.service';
 import { environment } from '../../../environments/environment';
 import { ExternalLinkDirective } from '../../core/directives/external-link.directive';
 import { HeaderComponent } from '../../shared/components/header/header.component';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import { heroWallet, heroQrCode, heroUser, heroCheck, heroArrowUpRight, heroEnvelope } from '@ng-icons/heroicons/outline';
+import { heroSquare2StackSolid } from '@ng-icons/heroicons/solid';
 
 const LOGIN_TIMEOUT_MS = 120_000;
 const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
@@ -27,7 +30,9 @@ const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
     TranslateModule,
     ExternalLinkDirective,
     HeaderComponent,
+    NgIconComponent,
   ],
+  providers: [provideIcons({ heroWallet, heroQrCode, heroUser, heroCheck, heroArrowUpRight, heroEnvelope, heroSquare2StackSolid })],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
 })

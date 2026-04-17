@@ -214,15 +214,11 @@
         background-color: var(--background-tertiary);
       }
     }
-
-    > .material-symbols-outlined {
-      font-size: 14px;
-    }
   }
 
   .instructions-list {
     list-style: none;
-    gap: 22px;
+    gap: 16px;
     padding: 0;
     margin-top: 24px;
     display: flex;
@@ -307,7 +303,6 @@
   border-radius: 6px;
   text-decoration: none;
   letter-spacing: 0.03em;
-  line-height: 1;
   margin: 0 auto;
   padding: 12px 16px;
   @include up(md) {
@@ -324,10 +319,6 @@
   &:focus-visible {
     outline: 2px solid var(--primary-contrast-color);
     outline-offset: 4px;
-  }
-
-  > .material-symbols-outlined {
-    font-variation-settings: "wght" 100;
   }
 
   * + & {
@@ -361,7 +352,7 @@
     margin-top: 40px;
   }
 
-  > .material-symbols-outlined {
+  > .support-box-icon {
     width: 32px;
     height: 32px;
     font-size: 20px;
@@ -369,11 +360,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
     border-radius: 8px;
     background-color: var(--background-tertiary);
     color: var(--background-primary);
-    font-size: 22px;
   }
 }
 
