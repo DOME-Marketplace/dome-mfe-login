@@ -1,4 +1,18 @@
 {
+  "header.logo.aria": "DOME Marketplace",
+  "header.nav.aria": "Navegación principal",
+  "header.nav.customers": "Para Clientes",
+  "header.nav.providers": "Para Proveedores",
+  "header.nav.marketplace": "Marketplace",
+  "header.nav.browse": "Explorar servicios",
+  "header.nav.catalog": "Catálogo de proveedores",
+  "header.nav.resources": "Recursos",
+  "header.nav.blog": "Blog",
+  "header.actions.contact": "Contáctanos",
+  "header.actions.login": "Iniciar sesión",
+  "header.hamburger.open": "Abrir menú",
+  "header.hamburger.close": "Cerrar menú",
+
   "login.title": "Inicia sesión en DOME",
   "login.description": "Usa tu Cartera Digital para acceder de forma segura al mercado DOME.",
   "login.qr.frame.description": "Escanea con tu Cartera Digital",

@@ -3,11 +3,11 @@
     <a
       class="header-logo"
       [href]="homeUri() || '#'"
-      aria-label="DOME Marketplace"
+      [attr.aria-label]="'header.logo.aria' | translate"
     >
       <img src="assets/logos/dome-logo.svg" alt="" aria-hidden="true" />
     </a>
-    <nav class="header-nav" aria-label="Main navigation">
+    <nav class="header-nav" [attr.aria-label]="'header.nav.aria' | translate">
       <ul class="header-nav-list" role="list">
         <li>
           <a
@@ -16,7 +16,7 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            For Customers
+            {{ 'header.nav.customers' | translate }}
           </a>
         </li>
         <li>
@@ -26,7 +26,7 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            For Providers
+            {{ 'header.nav.providers' | translate }}
           </a>
         </li>
         <li class="header-nav-dropdown-wrap" #dropdownWrap>
@@ -38,7 +38,7 @@
             aria-controls="dropdown-marketplace-menu"
             (click)="toggleMarketplaceDropdown()"
           >
-            Marketplace
+            {{ 'header.nav.marketplace' | translate }}
             <span class="header-nav-dropdown-arrow" aria-hidden="true">▾</span>
           </button>
           <ul
@@ -54,7 +54,7 @@
                 class="header-nav-dropdown-item"
                 [href]="homeUri() ? homeUri() + '/search' : '#'"
               >
-                Browse services
+                {{ 'header.nav.browse' | translate }}
               </a>
             </li>
             <li>
@@ -62,7 +62,7 @@
                 class="header-nav-dropdown-item"
                 [href]="homeUri() ? homeUri() + '/catalogues' : '#'"
               >
-                Providers catalog
+                {{ 'header.nav.catalog' | translate }}
               </a>
             </li>
           </ul>
@@ -74,12 +74,12 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            Resources
+            {{ 'header.nav.resources' | translate }}
           </a>
         </li>
         <li>
           <a class="header-nav-link" [href]="homeUri() ? homeUri() + '/blog' : '#'">
-            Blog
+            {{ 'header.nav.blog' | translate }}
           </a>
         </li>
       </ul>
@@ -89,16 +89,18 @@
         class="header-btn header-btn--outline"
         [href]="homeUri() ? homeUri() + '/contact-us' : '#'"
       >
-        Contact us
+        {{ 'header.actions.contact' | translate }}
       </a>
-      <a class="header-btn header-btn--filled" href="#">Login</a>
+      <a class="header-btn header-btn--filled" [href]="currentUrl()">
+        {{ 'header.actions.login' | translate }}
+      </a>
     </div>
     <button
       class="header-hamburger"
       type="button"
       [attr.aria-expanded]="mobileMenuOpen()"
       aria-controls="mobile-menu"
-      [attr.aria-label]="mobileMenuOpen() ? 'Close menu' : 'Open menu'"
+      [attr.aria-label]="(mobileMenuOpen() ? 'header.hamburger.close' : 'header.hamburger.open') | translate"
       (click)="toggleMobileMenu()"
     >
       @if (mobileMenuOpen()) {
@@ -123,7 +125,7 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            For Customers
+            {{ 'header.nav.customers' | translate }}
           </a>
         </li>
         <li>
@@ -133,7 +135,7 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            For Providers
+            {{ 'header.nav.providers' | translate }}
           </a>
         </li>
         <li>
@@ -141,7 +143,7 @@
             class="header-mobile-nav-link"
             [href]="homeUri() ? homeUri() + '/search' : '#'"
           >
-            Browse services
+            {{ 'header.nav.browse' | translate }}
           </a>
         </li>
         <li>
@@ -149,7 +151,7 @@
             class="header-mobile-nav-link"
             [href]="homeUri() ? homeUri() + '/catalogues' : '#'"
           >
-            Providers catalog
+            {{ 'header.nav.catalog' | translate }}
           </a>
         </li>
         <li>
@@ -159,7 +161,7 @@
             target="_blank"
             rel="noopener noreferrer"
           >
-            Resources
+            {{ 'header.nav.resources' | translate }}
           </a>
         </li>
         <li>
@@ -167,7 +169,7 @@
             class="header-mobile-nav-link"
             [href]="homeUri() ? homeUri() + '/blog' : '#'"
           >
-            Blog
+            {{ 'header.nav.blog' | translate }}
           </a>
         </li>
       </ul>
@@ -176,9 +178,11 @@
           class="header-btn header-btn--outline"
           [href]="homeUri() ? homeUri() + '/contact-us' : '#'"
         >
-          Contact us
+          {{ 'header.actions.contact' | translate }}
         </a>
-        <a class="header-btn header-btn--filled" href="#">Login</a>
+        <a class="header-btn header-btn--filled" [href]="currentUrl()">
+          {{ 'header.actions.login' | translate }}
+        </a>
       </div>
     </div>
   </div>

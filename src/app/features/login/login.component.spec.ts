@@ -230,6 +230,19 @@ describe('LoginComponent', () => {
 
       expect(navigator.clipboard.writeText).not.toHaveBeenCalled();
     });
+
+    it('should log error when clipboard write fails', fakeAsync(() => {
+      Object.assign(navigator, {
+        clipboard: { writeText: jest.fn().mockRejectedValue(new Error('denied')) },
+      });
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      createComponent({ authRequest: 'openid4vp://authorize' });
+      component.copyAuthRequest();
+      tick();
+
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to copy', expect.any(Error));
+    }));
   });
 
   describe('walletRedirectUrl', () => {

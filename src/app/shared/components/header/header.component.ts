@@ -9,12 +9,13 @@ import {
 } from '@angular/core';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroBars3, heroXMark } from '@ng-icons/heroicons/outline';
+import { TranslateModule } from '@ngx-translate/core';
 import { ExternalLinkDirective } from '../../../core/directives/external-link.directive';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [ExternalLinkDirective, NgIconComponent],
+  imports: [ExternalLinkDirective, NgIconComponent, TranslateModule],
   providers: [provideIcons({ heroBars3, heroXMark })],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.scss'],
@@ -29,6 +30,7 @@ export class HeaderComponent {
   // Signals
   protected readonly mobileMenuOpen = signal(false);
   protected readonly marketplaceDropdownOpen = signal(false);
+  protected readonly currentUrl = signal(window.location.href);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {

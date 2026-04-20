@@ -1,4 +1,18 @@
 {
+  "header.logo.aria": "DOME Marketplace",
+  "header.nav.aria": "Main navigation",
+  "header.nav.customers": "For Customers",
+  "header.nav.providers": "For Providers",
+  "header.nav.marketplace": "Marketplace",
+  "header.nav.browse": "Browse services",
+  "header.nav.catalog": "Providers catalog",
+  "header.nav.resources": "Resources",
+  "header.nav.blog": "Blog",
+  "header.actions.contact": "Contact us",
+  "header.actions.login": "Login",
+  "header.hamburger.open": "Open menu",
+  "header.hamburger.close": "Close menu",
+
   "login.title": "Sign in to DOME",
   "login.description": "Use your Digital Wallet to securely access the DOME marketplace.",
   "login.qr.frame.description": "Scan with your Digital Wallet",

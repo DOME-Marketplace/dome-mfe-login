@@ -134,6 +134,7 @@
   .header-nav-dropdown-item {
     @include up(lg) {
       display: block;
+      text-decoration: none;
       width: 100%;
       padding: 10px 16px;
       font-size: 15px;

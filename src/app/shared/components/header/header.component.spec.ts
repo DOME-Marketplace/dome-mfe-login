@@ -1,5 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HeaderComponent } from './header.component';
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { of } from 'rxjs';
+
+const translations = {
+  'header.hamburger.open': 'Open menu',
+  'header.hamburger.close': 'Close menu',
+};
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -7,7 +14,13 @@ describe('HeaderComponent', () => {
 
   function createComponent(homeUri?: string) {
     TestBed.configureTestingModule({
-      imports: [HeaderComponent],
+      imports: [
+        HeaderComponent,
+        TranslateModule.forRoot({
+          defaultLanguage: 'en',
+          loader: { provide: TranslateLoader, useValue: { getTranslation: () => of(translations) } },
+        }),
+      ],
     });
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
