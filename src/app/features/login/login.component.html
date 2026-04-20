@@ -1,6 +1,6 @@
 <!-- ////////// HEADER START ////////// -->
 <app-header [homeUri]="homeUri()"></app-header>
-<!-- ////////// HEADER START ////////// -->
+<!-- ////////// HEADER END ////////// -->
 
 <!-- ////////// SUCCESS OVERLAY START ////////// -->
 @if (showSuccess()) {
@@ -39,7 +39,7 @@
                 >
                   <qrcode
                     [qrdata]="authRequest()"
-                    [width]="180"
+                    [width]="160"
                     [errorCorrectionLevel]="'M'"
                     [margin]="0"
                   >

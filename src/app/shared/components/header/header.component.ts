@@ -30,22 +30,23 @@ export class HeaderComponent {
   // Signals
   protected readonly mobileMenuOpen = signal(false);
   protected readonly marketplaceDropdownOpen = signal(false);
-  protected readonly currentUrl = signal(window.location.href);
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.mobileMenuOpen() && !this.marketplaceDropdownOpen()) return;
 
+    const target = event.target as Node | null;
+    
     if (
       this.marketplaceDropdownOpen() &&
-      !this.dropdownWrap()?.nativeElement.contains(event.target)
+      !this.dropdownWrap()?.nativeElement.contains(target)
     ) {
       this.marketplaceDropdownOpen.set(false);
     }
 
     if (
       this.mobileMenuOpen() &&
-      !this.el.nativeElement.contains(event.target)
+      !this.el.nativeElement.contains(target)
     ) {
       this.mobileMenuOpen.set(false);
     }

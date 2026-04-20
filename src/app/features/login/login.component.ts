@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subscription, timer } from 'rxjs';
+import { Subscription, fromEvent, timer } from 'rxjs';
 import { SseService } from '../../core/services/sse.service';
 import { environment } from '../../../environments/environment';
 import { ExternalLinkDirective } from '../../core/directives/external-link.directive';
@@ -31,7 +31,6 @@ import {
 import { heroSquare2StackSolid } from '@ng-icons/heroicons/solid';
 
 const LOGIN_TIMEOUT_MS = 120_000;
-const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
 
 @Component({
   selector: 'app-login',
@@ -78,12 +77,9 @@ export class LoginComponent implements OnInit {
   protected readonly copied = signal(false);
   protected readonly waitingForVerification = signal(false);
   protected readonly showSuccess = signal(false);
-  protected readonly remainingSeconds = signal(LOGIN_TIMEOUT_SECONDS);
-  protected readonly countdownPercentage = signal(100);
 
   // Private state
   private sseSub?: Subscription;
-  private countdownInterval?: ReturnType<typeof setInterval>;
 
   // Computed signals
   readonly walletRedirectUrl = computed(() => {
@@ -94,6 +90,14 @@ export class LoginComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    fromEvent<PageTransitionEvent>(window, 'pageshow')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
+
     this.authRequest.set(
       this.route.snapshot.queryParamMap.get('authRequest') ?? '',
     );
@@ -107,7 +111,6 @@ export class LoginComponent implements OnInit {
         next: (redirectUrl) => {
           this.waitingForVerification.set(false);
           this.showSuccess.set(true);
-          this.clearCountdown();
           setTimeout(() => {
             window.location.href = redirectUrl;
           }, 800);
@@ -115,19 +118,15 @@ export class LoginComponent implements OnInit {
         error: () => {
           this.waitingForVerification.set(false);
           this.errorMessage.set('login.error');
-          this.clearCountdown();
           setTimeout(() => this.errorMsg()?.nativeElement.focus());
         },
       });
-
-      this.startCountdown();
 
       timer(LOGIN_TIMEOUT_MS)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.waitingForVerification.set(false);
           this.timedOut.set(true);
-          this.clearCountdown();
           this.sseSub?.unsubscribe();
           setTimeout(() => this.timeoutMsg()?.nativeElement.focus());
           if (this.homeUri()) {
@@ -140,7 +139,6 @@ export class LoginComponent implements OnInit {
 
     this.destroyRef.onDestroy(() => {
       this.sseSub?.unsubscribe();
-      this.clearCountdown();
     });
   }
 
@@ -155,26 +153,5 @@ export class LoginComponent implements OnInit {
       .catch((err) => {
         console.error('Failed to copy', err);
       });
-  }
-
-  private startCountdown(): void {
-    this.remainingSeconds.set(LOGIN_TIMEOUT_SECONDS);
-    this.countdownPercentage.set(100);
-    this.countdownInterval = setInterval(() => {
-      this.remainingSeconds.update((s) => Math.max(0, s - 1));
-      this.countdownPercentage.set(
-        (this.remainingSeconds() / LOGIN_TIMEOUT_SECONDS) * 100,
-      );
-      if (this.remainingSeconds() <= 0) {
-        this.clearCountdown();
-      }
-    }, 1000);
-  }
-
-  private clearCountdown(): void {
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = undefined;
-    }
   }
 }

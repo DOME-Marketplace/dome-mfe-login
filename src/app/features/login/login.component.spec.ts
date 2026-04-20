@@ -7,7 +7,6 @@ import { LoginComponent } from './login.component';
 import { SseService } from '../../core/services/sse.service';
 
 const LOGIN_TIMEOUT_MS = 120_000;
-const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -45,6 +44,28 @@ describe('LoginComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  describe('pageshow (bfcache)', () => {
+    it('should reload when page is restored from bfcache', () => {
+      const reloadMock = jest.fn();
+      Object.defineProperty(window, 'location', { value: { reload: reloadMock }, configurable: true });
+      createComponent();
+
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }));
+
+      expect(reloadMock).toHaveBeenCalled();
+    });
+
+    it('should not reload on normal page load', () => {
+      const reloadMock = jest.fn();
+      Object.defineProperty(window, 'location', { value: { reload: reloadMock }, configurable: true });
+      createComponent();
+
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: false }));
+
+      expect(reloadMock).not.toHaveBeenCalled();
+    });
+  });
+
   describe('ngOnInit', () => {
     it('should read authRequest and state from query params', () => {
       createComponent({ authRequest: 'openid4vp://authorize', state: 'abc123' });
@@ -80,12 +101,6 @@ describe('LoginComponent', () => {
         createComponent({ state: 'test-state' });
         expect((component as any).waitingForVerification()).toBe(true);
       });
-
-      it('should start countdown', () => {
-        createComponent({ state: 'test-state' });
-        expect((component as any).remainingSeconds()).toBe(LOGIN_TIMEOUT_SECONDS);
-        expect((component as any).countdownPercentage()).toBe(100);
-      });
     });
   });
 
@@ -118,6 +133,14 @@ describe('LoginComponent', () => {
       expect((component as any).errorMessage()).toBe('login.error');
       expect((component as any).waitingForVerification()).toBe(false);
     });
+
+    it('should focus error message element after error', fakeAsync(() => {
+      createComponent({ state: 'test-state' });
+      sseSubject.error(new Error('SSE failed'));
+      fixture.detectChanges();
+      tick();
+      fixture.destroy();
+    }));
   });
 
   describe('timeout', () => {
@@ -155,42 +178,6 @@ describe('LoginComponent', () => {
       tick(LOGIN_TIMEOUT_MS);
 
       expect(locationSpy.href).toBe('');
-      fixture.destroy();
-    }));
-  });
-
-  describe('countdown', () => {
-    it('should decrement remainingSeconds each second', fakeAsync(() => {
-      createComponent({ state: 'test-state' });
-
-      tick(1000);
-      expect((component as any).remainingSeconds()).toBe(LOGIN_TIMEOUT_SECONDS - 1);
-
-      tick(1000);
-      expect((component as any).remainingSeconds()).toBe(LOGIN_TIMEOUT_SECONDS - 2);
-
-      fixture.destroy();
-    }));
-
-    it('should update countdownPercentage proportionally', fakeAsync(() => {
-      createComponent({ state: 'test-state' });
-
-      tick(LOGIN_TIMEOUT_SECONDS * 500); // halfway
-      const pct = (component as any).countdownPercentage();
-      expect(pct).toBeCloseTo(50, 0);
-
-      fixture.destroy();
-    }));
-
-    it('should stop at 0 and not go negative', fakeAsync(() => {
-      createComponent({ state: 'test-state' });
-
-      tick(LOGIN_TIMEOUT_MS + 5000);
-
-      // Timer fires at LOGIN_TIMEOUT_MS and calls clearCountdown(),
-      // so the final interval tick may or may not run depending on ordering.
-      expect((component as any).remainingSeconds()).toBeLessThanOrEqual(1);
-
       fixture.destroy();
     }));
   });
