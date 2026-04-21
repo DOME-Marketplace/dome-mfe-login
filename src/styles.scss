@@ -1,9 +1,23 @@
+@use "styles/_responsive.scss" as *;
+
 :root {
   // DOME brand colors
   --primary-color: #002060;
   --primary-contrast-color: #ffffff;
   --secondary-color: #001540;
   --secondary-contrast-color: #4fc3f7;
+
+  --gradient-start-pc: #2d58a7;
+  --gradient-start-sp: #1a3360;
+  --gradient-end: #14274a;
+  --gradient-blur: #3d71cc;
+  --background-primary: #2d58a7;
+  --background-secondary: #14274a;
+  --background-tertiary: #dde6f6;
+  --text-base: #d8dade;
+  --border-primary: #b6caec;
+  --background-header-sp-rgb: 0, 21, 64;
+  --primary-contrast-color-rgb: 255, 255, 255;
 
   // Semantic tokens
   --surface-page: #f8f9fa;
@@ -26,32 +40,123 @@
   --radius-md: 12px;
   --radius-lg: 20px;
   --radius-full: 9999px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
-  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
 }
 
+html,
+body {
+  font-family:
+    "Blinker",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--primary-contrast-color);
+  line-height: 1.75;
+  font-weight: 400;
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start-pc) 0%,
+    var(--gradient-end) 100%
+  );
+  @include up(md) {
+    background: linear-gradient(
+      160deg,
+      var(--gradient-start-pc) 0%,
+      var(--gradient-end) 100%
+    );
+  }
+}
+
+// ==============================
+// Reset CSS
+// ==============================
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
-
-html, body {
+html {
   margin: 0;
   padding: 0;
-  font-family: 'Blinker', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: var(--primary-color);
-  color: var(--primary-contrast-color);
+  -moz-text-size-adjust: none;
+  -webkit-text-size-adjust: none;
+  text-size-adjust: none;
+}
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+ul[role="list"],
+ol[role="list"] {
+  list-style: none;
+}
+body {
+  min-height: 100vh;
+  line-height: 1.5;
+}
+h1,
+h2,
+h3,
+h4,
+button,
+input,
+label {
+  line-height: 1.1;
+}
+h1,
+h2,
+h3,
+h4 {
+  text-wrap: balance;
+}
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+  color: currentColor;
+}
+img,
+picture {
+  max-width: 100%;
+  display: block;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+textarea:not([rows]) {
+  min-height: 10em;
+}
+:target {
+  scroll-margin-block: 5ex;
 }
 
-// — Shared animations —
-
+// ==============================
+// Shared animations
+// ==============================
 @keyframes fadeSlideIn {
-  0% { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .fade-slide-in {
@@ -59,12 +164,32 @@ html, body {
 }
 
 @keyframes shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 
-// — Accessibility: reduced motion —
+// ==============================
+// Accessibility: screen reader only
+// ==============================
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
+// ==============================
+// Accessibility: reduced motion
+// ==============================
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

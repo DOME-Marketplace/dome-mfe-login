@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Changed
+- Changed login page design.
 
 ## [3.0.0] - 2026-03-24
 

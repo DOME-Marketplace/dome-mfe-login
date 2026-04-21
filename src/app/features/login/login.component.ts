@@ -1,137 +1,157 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  ElementRef,
+  viewChild,
+  inject,
+  signal,
+  computed,
+  DestroyRef,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { QRCodeComponent } from 'angularx-qrcode';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subscription, timer } from 'rxjs';
+import { Subscription, fromEvent, timer } from 'rxjs';
 import { SseService } from '../../core/services/sse.service';
 import { environment } from '../../../environments/environment';
+import { ExternalLinkDirective } from '../../core/directives/external-link.directive';
+import { HeaderComponent } from '../../shared/components/header/header.component';
+import { NgIconComponent, provideIcons } from '@ng-icons/core';
+import {
+  heroWallet,
+  heroQrCode,
+  heroUser,
+  heroCheck,
+  heroCheckCircle,
+  heroArrowUpRight,
+  heroEnvelope,
+} from '@ng-icons/heroicons/outline';
+import { heroSquare2StackSolid } from '@ng-icons/heroicons/solid';
 
 const LOGIN_TIMEOUT_MS = 120_000;
-const LOGIN_TIMEOUT_SECONDS = LOGIN_TIMEOUT_MS / 1000;
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, QRCodeComponent, TranslateModule],
+  imports: [
+    CommonModule,
+    QRCodeComponent,
+    TranslateModule,
+    ExternalLinkDirective,
+    HeaderComponent,
+    NgIconComponent,
+  ],
+  providers: [
+    provideIcons({
+      heroWallet,
+      heroQrCode,
+      heroUser,
+      heroCheck,
+      heroCheckCircle,
+      heroArrowUpRight,
+      heroEnvelope,
+      heroSquare2StackSolid,
+    }),
+  ],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  styleUrls: ['./login.component.scss'],
 })
-export class LoginComponent implements OnInit, OnDestroy {
-  authRequest = '';
-  state = '';
-  homeUri = '';
-  timedOut = false;
-  errorMessage = '';
-  sameDevice = false;
-  copied = false;
-  waitingForVerification = false;
-  showSuccess = false;
-  remainingSeconds: number = LOGIN_TIMEOUT_SECONDS;
-  countdownPercentage: number = 100;
+export class LoginComponent implements OnInit {
+  // View children
+  readonly timeoutMsg = viewChild<ElementRef>('timeoutMsg');
+  readonly errorMsg = viewChild<ElementRef>('errorMsg');
 
+  // service injection
+  private readonly route = inject(ActivatedRoute);
+  private readonly sseService = inject(SseService);
+  private readonly destroyRef = inject(DestroyRef);
+
+  // Signals
+  protected readonly authRequest = signal('');
+  protected readonly state = signal('');
+  protected readonly homeUri = signal('');
+  protected readonly timedOut = signal(false);
+  protected readonly errorMessage = signal('');
+  protected readonly copied = signal(false);
+  protected readonly waitingForVerification = signal(false);
+  protected readonly showSuccess = signal(false);
+
+  // Private state
   private sseSub?: Subscription;
-  private timerSub?: Subscription;
-  private countdownInterval?: ReturnType<typeof setInterval>;
 
-  constructor(
-    private route: ActivatedRoute,
-    private sseService: SseService
-  ) {}
+  // Computed signals
+  readonly walletRedirectUrl = computed(() => {
+    const walletUrl = environment.walletUrl;
+    if (!this.authRequest() || !walletUrl) return '';
+    const base = walletUrl.replace(/\/+$/, '');
+    return `${base}/protocol/callback?authorization_request=${encodeURIComponent(this.authRequest())}`;
+  });
 
   ngOnInit(): void {
-    this.authRequest = this.route.snapshot.queryParamMap.get('authRequest') ?? '';
-    this.state = this.route.snapshot.queryParamMap.get('state') ?? '';
-    this.homeUri = this.route.snapshot.queryParamMap.get('homeUri') ?? '';
+    fromEvent<PageTransitionEvent>(window, 'pageshow')
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((event) => {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      });
 
-    if (this.state) {
-      this.waitingForVerification = true;
+    this.authRequest.set(
+      this.route.snapshot.queryParamMap.get('authRequest') ?? '',
+    );
+    this.state.set(this.route.snapshot.queryParamMap.get('state') ?? '');
+    this.homeUri.set(this.route.snapshot.queryParamMap.get('homeUri') ?? '');
 
-      this.sseSub = this.sseService.connect(this.state).subscribe({
-        next: redirectUrl => {
-          this.waitingForVerification = false;
-          this.showSuccess = true;
-          this.clearCountdown();
+    if (this.state()) {
+      this.waitingForVerification.set(true);
+
+      this.sseSub = this.sseService.connect(this.state()).subscribe({
+        next: (redirectUrl) => {
+          this.waitingForVerification.set(false);
+          this.showSuccess.set(true);
           setTimeout(() => {
             window.location.href = redirectUrl;
           }, 800);
         },
         error: () => {
-          this.waitingForVerification = false;
-          this.errorMessage = 'login.error';
-          this.clearCountdown();
-        }
+          this.waitingForVerification.set(false);
+          this.errorMessage.set('login.error');
+          setTimeout(() => this.errorMsg()?.nativeElement.focus());
+        },
       });
 
-      this.startCountdown();
-
-      this.timerSub = timer(LOGIN_TIMEOUT_MS).subscribe(() => {
-        this.waitingForVerification = false;
-        this.timedOut = true;
-        this.clearCountdown();
-        this.sseSub?.unsubscribe();
-        if (this.homeUri) {
-          window.location.href = this.homeUri;
-        }
-      });
+      timer(LOGIN_TIMEOUT_MS)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.waitingForVerification.set(false);
+          this.timedOut.set(true);
+          this.sseSub?.unsubscribe();
+          setTimeout(() => this.timeoutMsg()?.nativeElement.focus());
+          if (this.homeUri()) {
+            setTimeout(() => {
+              window.location.href = this.homeUri();
+            }, 800);
+          }
+        });
     }
-  }
 
-  get walletRedirectUrl(): string {
-    const walletUrl = environment.walletUrl;
-    if (!this.authRequest || !walletUrl) return '';
-    const base = walletUrl.replace(/\/+$/, '');
-    return `${base}/protocol/callback?authorization_request=${encodeURIComponent(this.authRequest)}`;
-  }
-
-  copyAuthRequest(): void {
-    if (!this.authRequest) return;
-    navigator.clipboard.writeText(this.authRequest).then(() => {
-      this.copied = true;
-      setTimeout(() => this.copied = false, 2000);
+    this.destroyRef.onDestroy(() => {
+      this.sseSub?.unsubscribe();
     });
   }
 
-  toggleSameDevice(): void {
-    this.sameDevice = !this.sameDevice;
-  }
-
-  navigateHome(): void {
-    if (this.homeUri) {
-      window.location.href = this.homeUri;
-    }
-  }
-
-  openWallet(): void {
-    if (!this.walletRedirectUrl) return;
-    const opened = window.open(this.walletRedirectUrl, '_blank');
-    if (!opened) {
-      window.location.href = this.walletRedirectUrl;
-    }
-  }
-
-  private startCountdown(): void {
-    this.remainingSeconds = LOGIN_TIMEOUT_SECONDS;
-    this.countdownPercentage = 100;
-    this.countdownInterval = setInterval(() => {
-      this.remainingSeconds = Math.max(0, this.remainingSeconds - 1);
-      this.countdownPercentage = (this.remainingSeconds / LOGIN_TIMEOUT_SECONDS) * 100;
-      if (this.remainingSeconds <= 0) {
-        this.clearCountdown();
-      }
-    }, 1000);
-  }
-
-  private clearCountdown(): void {
-    if (this.countdownInterval) {
-      clearInterval(this.countdownInterval);
-      this.countdownInterval = undefined;
-    }
-  }
-
-  ngOnDestroy(): void {
-    this.sseSub?.unsubscribe();
-    this.timerSub?.unsubscribe();
-    this.clearCountdown();
+  copyAuthRequest(): void {
+    if (!this.authRequest()) return;
+    navigator.clipboard
+      .writeText(this.authRequest())
+      .then(() => {
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 2000);
+      })
+      .catch((err) => {
+        console.error('Failed to copy', err);
+      });
   }
 }

@@ -1,0 +1,195 @@
+<header id="header" class="header">
+  <div class="header-inner">
+    <a
+      class="header-logo"
+      [href]="homeUri() || '#'"
+      [attr.aria-label]="'header.logo.aria' | translate"
+    >
+      <img src="assets/logos/dome-logo.svg" alt="" aria-hidden="true" />
+    </a>
+    <nav class="header-nav" [attr.aria-label]="'header.nav.aria' | translate">
+      <ul class="header-nav-list" role="list">
+        <li>
+          <a
+            class="header-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/customers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "header.nav.customers" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/providers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "header.nav.providers" | translate }}
+          </a>
+        </li>
+        <li class="header-nav-dropdown-wrap" #dropdownWrap>
+          <button
+            class="header-nav-link header-nav-dropdown-trigger"
+            type="button"
+            id="dropdown-marketplace"
+            [attr.aria-expanded]="marketplaceDropdownOpen()"
+            aria-controls="dropdown-marketplace-menu"
+            (click)="toggleMarketplaceDropdown()"
+          >
+            {{ "header.nav.marketplace" | translate }}
+            <span class="header-nav-dropdown-arrow" aria-hidden="true">▾</span>
+          </button>
+          <ul
+            class="header-nav-dropdown-menu"
+            id="dropdown-marketplace-menu"
+            [class.is-open]="marketplaceDropdownOpen()"
+            role="list"
+            [attr.aria-hidden]="!marketplaceDropdownOpen()"
+            aria-labelledby="dropdown-marketplace"
+          >
+            <li>
+              <a
+                class="header-nav-dropdown-item"
+                [href]="homeUri() ? homeUri() + '/search' : '#'"
+              >
+                {{ "header.nav.browse" | translate }}
+              </a>
+            </li>
+            <li>
+              <a
+                class="header-nav-dropdown-item"
+                [href]="homeUri() ? homeUri() + '/catalogues' : '#'"
+              >
+                {{ "header.nav.catalog" | translate }}
+              </a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a
+            class="header-nav-link"
+            href="https://knowledgebase.dome-marketplace-prd.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "header.nav.resources" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-nav-link"
+            [href]="homeUri() ? homeUri() + '/blog' : '#'"
+          >
+            {{ "header.nav.blog" | translate }}
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="header-actions">
+      <a
+        class="header-btn header-btn--outline"
+        [href]="homeUri() ? homeUri() + '/contact-us' : '#'"
+      >
+        {{ "header.actions.contact" | translate }}
+      </a>
+      <button type="button" class="header-btn header-btn--filled">
+        {{ "header.actions.login" | translate }}
+      </button>
+    </div>
+    <button
+      class="header-hamburger"
+      type="button"
+      [attr.aria-expanded]="mobileMenuOpen()"
+      aria-controls="mobile-menu"
+      [attr.aria-label]="
+        (mobileMenuOpen() ? 'header.hamburger.close' : 'header.hamburger.open')
+          | translate
+      "
+      (click)="toggleMobileMenu()"
+    >
+      @if (mobileMenuOpen()) {
+        <ng-icon name="heroXMark" size="28" aria-hidden="true"></ng-icon>
+      } @else {
+        <ng-icon name="heroBars3" size="28" aria-hidden="true"></ng-icon>
+      }
+    </button>
+  </div>
+  <div
+    class="header-mobile-menu"
+    id="mobile-menu"
+    [class.is-open]="mobileMenuOpen()"
+    [attr.aria-hidden]="!mobileMenuOpen()"
+  >
+    <div class="header-mobile-menu-inner">
+      <ul class="header-mobile-nav-list" role="list">
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/customers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "header.nav.customers" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/landing-page/providers' : '#'"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "header.nav.providers" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/search' : '#'"
+          >
+            {{ "header.nav.browse" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/catalogues' : '#'"
+          >
+            {{ "header.nav.catalog" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            href="https://knowledgebase.dome-marketplace-prd.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "header.nav.resources" | translate }}
+          </a>
+        </li>
+        <li>
+          <a
+            class="header-mobile-nav-link"
+            [href]="homeUri() ? homeUri() + '/blog' : '#'"
+          >
+            {{ "header.nav.blog" | translate }}
+          </a>
+        </li>
+      </ul>
+      <div class="header-mobile-actions">
+        <a
+          class="header-btn header-btn--outline"
+          [href]="homeUri() ? homeUri() + '/contact-us' : '#'"
+        >
+          {{ "header.actions.contact" | translate }}
+        </a>
+        <button type="button" class="header-btn header-btn--filled">
+          {{ "header.actions.login" | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
